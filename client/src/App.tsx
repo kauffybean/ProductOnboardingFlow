@@ -59,7 +59,7 @@ function Router() {
       <div className="flex-1 flex flex-col min-h-screen overflow-hidden">
         <Header />
         
-        <div className={`flex-1 ${!isBaseDashboard ? 'container mx-auto px-4 py-8 max-w-7xl' : ''}`}>
+        <div className={`flex-1 ${!isBaseDashboard ? 'container mx-auto px-4 py-8 max-w-7xl' : ''} ${showSidebar ? 'pl-8' : ''}`}>
           <Switch>
             <Route path="/" component={Dashboard} />
             <Route path="/standards-wizard" component={StandardsWizard} />

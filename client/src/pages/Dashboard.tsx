@@ -123,208 +123,165 @@ export default function Dashboard() {
           </Card>
         )}
 
-        {/* Onboarding Journey Cards with Clear CTAs */}
-        <div className="grid grid-cols-1 gap-8 mb-12">
-          {/* Step 1: Set Standards */}
-          <Card 
-            className={`border-2 transition duration-150 shadow-sm hover:shadow ${
-              progress?.standardsSetupComplete 
-                ? 'border-green-300 bg-green-50' 
-                : 'border-primary hover:border-primary-600'
-            }`}
-          >
-            <CardContent className="p-8">
-              <div className="flex items-center gap-6">
-                <div className="flex-shrink-0 h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                  <span className="text-xl font-bold text-primary">1</span>
-                </div>
-                
-                <div className="flex-grow space-y-1">
-                  <h3 className="text-xl font-semibold text-slate-800">Set Company Standards</h3>
-                  <p className="text-slate-600">
-                    Define your estimating standards to improve the accuracy of your bids.
-                  </p>
-                  <div className="flex items-center text-xs text-slate-500 mt-1">
-                    <Clock className="h-3 w-3 mr-1" /> Estimated time: 2 min
+        {/* Single focused step card - only shows the current active step */}
+        <div className="mb-12">
+          {/* Determine which step to show */}
+          {!progress?.standardsSetupComplete ? (
+            // Step 1: Set Standards
+            <Card className="border-2 border-primary transition duration-150 shadow-sm hover:shadow">
+              <CardContent className="p-8">
+                <div className="flex items-center gap-6">
+                  <div className="flex-shrink-0 h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                    <span className="text-xl font-bold text-primary">1</span>
                   </div>
-                </div>
-                
-                <div className="flex-shrink-0 ml-auto">
-                  {progress?.standardsSetupComplete ? (
-                    <div className="flex items-center gap-2 text-green-600">
-                      <CheckCircle className="h-5 w-5" />
-                      <span className="font-medium">Completed</span>
+                  
+                  <div className="flex-grow space-y-1">
+                    <h3 className="text-xl font-semibold text-slate-800">Set Company Standards</h3>
+                    <p className="text-slate-600">
+                      Define your estimating standards to improve the accuracy of your bids.
+                    </p>
+                    <div className="flex items-center text-xs text-slate-500 mt-1">
+                      <Clock className="h-3 w-3 mr-1" /> Estimated time: 2 min
                     </div>
-                  ) : (
+                  </div>
+                  
+                  <div className="flex-shrink-0 ml-auto">
                     <Button 
                       size="lg" 
                       onClick={handleStartStandards}
-                      className="font-medium"
+                      className="font-medium bg-primary hover:bg-primary/90 text-white"
                     >
                       Start Now <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          {/* Step 2: Upload Documents */}
-          <Card 
-            className={`border-2 transition duration-150 shadow-sm hover:shadow ${
-              progress?.historicPricingUploaded 
-                ? 'border-green-300 bg-green-50' 
-                : !progress?.standardsSetupComplete 
-                  ? 'border-slate-200 opacity-60' 
-                  : 'border-primary hover:border-primary-600'
-            }`}
-          >
-            <CardContent className="p-8">
-              <div className="flex items-center gap-6">
-                <div className="flex-shrink-0 h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                  <span className="text-xl font-bold text-primary">2</span>
-                </div>
-                
-                <div className="flex-grow space-y-1">
-                  <h3 className="text-xl font-semibold text-slate-800">Upload Pricing Information</h3>
-                  <p className="text-slate-600">
-                    Add your historic pricing data and materials information for accurate estimates.
-                  </p>
-                  <div className="flex items-center text-xs text-slate-500 mt-1">
-                    <Clock className="h-3 w-3 mr-1" /> Estimated time: 1 min
                   </div>
                 </div>
-                
-                <div className="flex-shrink-0 ml-auto">
-                  {progress?.historicPricingUploaded ? (
-                    <div className="flex items-center gap-2 text-green-600">
-                      <CheckCircle className="h-5 w-5" />
-                      <span className="font-medium">Completed</span>
+              </CardContent>
+            </Card>
+          ) : !progress?.historicPricingUploaded ? (
+            // Step 2: Upload Documents
+            <Card className="border-2 border-primary transition duration-150 shadow-sm hover:shadow">
+              <CardContent className="p-8">
+                <div className="flex items-center gap-6">
+                  <div className="flex-shrink-0 h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                    <span className="text-xl font-bold text-primary">2</span>
+                  </div>
+                  
+                  <div className="flex-grow space-y-1">
+                    <h3 className="text-xl font-semibold text-slate-800">Upload Pricing Information</h3>
+                    <p className="text-slate-600">
+                      Add your historic pricing data and materials information for accurate estimates.
+                    </p>
+                    <div className="flex items-center text-xs text-slate-500 mt-1">
+                      <Clock className="h-3 w-3 mr-1" /> Estimated time: 1 min
                     </div>
-                  ) : (
+                  </div>
+                  
+                  <div className="flex-shrink-0 ml-auto">
                     <Button 
                       size="lg" 
                       onClick={handleUploadDocuments}
-                      disabled={!progress?.standardsSetupComplete}
-                      className="font-medium"
+                      className="font-medium bg-primary hover:bg-primary/90 text-white"
                     >
-                      {progress?.standardsSetupComplete ? "Continue" : "Next Step"} <ArrowRight className="ml-2 h-4 w-4" />
+                      Continue <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          {/* Step 3: Create Estimate */}
-          <Card 
-            className={`border-2 transition duration-150 shadow-sm hover:shadow ${
-              progress?.firstEstimateCreated 
-                ? 'border-green-300 bg-green-50' 
-                : (!progress?.standardsSetupComplete || !progress?.historicPricingUploaded) 
-                  ? 'border-slate-200 opacity-60' 
-                  : 'border-primary hover:border-primary-600'
-            }`}
-          >
-            <CardContent className="p-8">
-              <div className="flex items-center gap-6">
-                <div className="flex-shrink-0 h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                  <span className="text-xl font-bold text-primary">3</span>
-                </div>
-                
-                <div className="flex-grow space-y-1">
-                  <h3 className="text-xl font-semibold text-slate-800">Create Your First Project</h3>
-                  <p className="text-slate-600">
-                    Start your first project with schematics and documents to generate an estimate.
-                  </p>
-                  <div className="flex items-center text-xs text-slate-500 mt-1">
-                    <Clock className="h-3 w-3 mr-1" /> Estimated time: 2 min
                   </div>
                 </div>
-                
-                <div className="flex-shrink-0 ml-auto">
-                  {progress?.firstEstimateCreated ? (
-                    <div className="flex items-center gap-2 text-green-600">
-                      <CheckCircle className="h-5 w-5" />
-                      <span className="font-medium">Completed</span>
+              </CardContent>
+            </Card>
+          ) : !progress?.firstEstimateCreated ? (
+            // Step 3: Create Estimate
+            <Card className="border-2 border-primary transition duration-150 shadow-sm hover:shadow">
+              <CardContent className="p-8">
+                <div className="flex items-center gap-6">
+                  <div className="flex-shrink-0 h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                    <span className="text-xl font-bold text-primary">3</span>
+                  </div>
+                  
+                  <div className="flex-grow space-y-1">
+                    <h3 className="text-xl font-semibold text-slate-800">Create Your First Project</h3>
+                    <p className="text-slate-600">
+                      Start your first project with schematics and documents to generate an estimate.
+                    </p>
+                    <div className="flex items-center text-xs text-slate-500 mt-1">
+                      <Clock className="h-3 w-3 mr-1" /> Estimated time: 2 min
                     </div>
-                  ) : (
+                  </div>
+                  
+                  <div className="flex-shrink-0 ml-auto">
                     <Button 
                       size="lg"
                       onClick={() => setShowEstimateCreation(true)} 
-                      disabled={!progress?.standardsSetupComplete || !progress?.historicPricingUploaded}
-                      className="font-medium"
+                      className="font-medium bg-primary hover:bg-primary/90 text-white"
                     >
-                      {progress?.standardsSetupComplete && progress?.historicPricingUploaded ? "Start Project" : "Next Step"} <ArrowRight className="ml-2 h-4 w-4" />
+                      Get Started <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          {/* Add placeholder cards for the next steps that align with sidebar */}
-          <Card className="border-2 border-slate-200 opacity-60">
-            <CardContent className="p-8">
-              <div className="flex items-center gap-6">
-                <div className="flex-shrink-0 h-12 w-12 rounded-full bg-slate-100 flex items-center justify-center">
-                  <span className="text-xl font-bold text-slate-400">4</span>
-                </div>
-                
-                <div className="flex-grow space-y-1">
-                  <h3 className="text-xl font-semibold text-slate-400">Validate Estimate</h3>
-                  <p className="text-slate-400">
-                    Review and validate your estimate against company standards.
-                  </p>
-                  <div className="flex items-center text-xs text-slate-400 mt-1">
-                    <Clock className="h-3 w-3 mr-1" /> Estimated time: 2 min
                   </div>
                 </div>
-                
-                <div className="flex-shrink-0 ml-auto">
-                  <Button 
-                    size="lg" 
-                    disabled
-                    variant="outline"
-                    className="text-slate-400 border-slate-300"
-                  >
-                    Coming Soon <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-2 border-slate-200 opacity-60">
-            <CardContent className="p-8">
-              <div className="flex items-center gap-6">
-                <div className="flex-shrink-0 h-12 w-12 rounded-full bg-slate-100 flex items-center justify-center">
-                  <span className="text-xl font-bold text-slate-400">5</span>
-                </div>
-                
-                <div className="flex-grow space-y-1">
-                  <h3 className="text-xl font-semibold text-slate-400">Submit Bid</h3>
-                  <p className="text-slate-400">
-                    Finalize and submit your bid with confidence.
-                  </p>
-                  <div className="flex items-center text-xs text-slate-400 mt-1">
-                    <Clock className="h-3 w-3 mr-1" /> Estimated time: 1 min
+              </CardContent>
+            </Card>
+          ) : !progress?.estimateValidated ? (
+            // Step 4: Validate Estimate
+            <Card className="border-2 border-primary transition duration-150 shadow-sm hover:shadow">
+              <CardContent className="p-8">
+                <div className="flex items-center gap-6">
+                  <div className="flex-shrink-0 h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                    <span className="text-xl font-bold text-primary">4</span>
+                  </div>
+                  
+                  <div className="flex-grow space-y-1">
+                    <h3 className="text-xl font-semibold text-slate-800">Validate Your Estimate</h3>
+                    <p className="text-slate-600">
+                      Review and validate your estimate against your company standards.
+                    </p>
+                    <div className="flex items-center text-xs text-slate-500 mt-1">
+                      <Clock className="h-3 w-3 mr-1" /> Estimated time: 2 min
+                    </div>
+                  </div>
+                  
+                  <div className="flex-shrink-0 ml-auto">
+                    <Button 
+                      size="lg"
+                      onClick={() => navigate('/validation-dashboard')}
+                      className="font-medium bg-primary hover:bg-primary/90 text-white"
+                    >
+                      Start Validation <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
-                
-                <div className="flex-shrink-0 ml-auto">
-                  <Button 
-                    size="lg" 
-                    disabled
-                    variant="outline"
-                    className="text-slate-400 border-slate-300"
-                  >
-                    Coming Soon <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
+              </CardContent>
+            </Card>
+          ) : (
+            // Step 5: Submit Bid (or show progress complete message)
+            <Card className="border-2 border-primary transition duration-150 shadow-sm hover:shadow">
+              <CardContent className="p-8">
+                <div className="flex items-center gap-6">
+                  <div className="flex-shrink-0 h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                    <span className="text-xl font-bold text-primary">5</span>
+                  </div>
+                  
+                  <div className="flex-grow space-y-1">
+                    <h3 className="text-xl font-semibold text-slate-800">Submit Your Bid</h3>
+                    <p className="text-slate-600">
+                      Finalize and submit your bid with confidence.
+                    </p>
+                    <div className="flex items-center text-xs text-slate-500 mt-1">
+                      <Clock className="h-3 w-3 mr-1" /> Estimated time: 1 min
+                    </div>
+                  </div>
+                  
+                  <div className="flex-shrink-0 ml-auto">
+                    <Button 
+                      size="lg"
+                      onClick={() => navigate('/submit-bid')}
+                      className="font-medium bg-primary hover:bg-primary/90 text-white"
+                    >
+                      Submit Bid <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* Show only estimates in progress during onboarding */}
