@@ -6,7 +6,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CriticalStandards, AdvancedStandards } from "@shared/schema";
+import { 
+  CriticalStandards, 
+  AdvancedStandards, 
+  CommercialStandards, 
+  ResidentialStandards, 
+  RenovationStandards 
+} from "@shared/schema";
 
 type StandardsFormProps = {
   form: UseFormReturn<CriticalStandards> | UseFormReturn<AdvancedStandards>;

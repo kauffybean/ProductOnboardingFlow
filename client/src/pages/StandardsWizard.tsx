@@ -14,7 +14,7 @@ import StandardsForm from "@/components/StandardsForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Check, ArrowRight, ChevronRight, Pencil, Building, Home, Hammer, BuildingIcon } from "lucide-react";
+import { Check, ArrowRight, ChevronRight, Pencil, Building, Home, Hammer } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -140,16 +140,50 @@ export default function StandardsWizard() {
     restroomFixtureBrand: "kohler"
   };
   
-  // Form for critical standards (Step 2)
+  // Project-specific default values
+  const defaultCommercialValues: CommercialStandards = {
+    commercialFireRating: "2-hour",
+    commercialAccessibilityStandard: "ada",
+    commercialFlooringType: "carpet-tile"
+  };
+  
+  const defaultResidentialValues: ResidentialStandards = {
+    residentialInsulationRValue: 30,
+    residentialWindowType: "double-pane",
+    residentialFlooringType: "hardwood"
+  };
+  
+  const defaultRenovationValues: RenovationStandards = {
+    demolitionWasteFactor: 15,
+    hazardousMaterialHandling: "removal"
+  };
+  
+  // Form for critical standards (Step 3)
   const criticalForm = useForm<CriticalStandards>({
     resolver: zodResolver(criticalStandardsSchema),
     defaultValues: defaultCriticalValues
   });
   
-  // Form for advanced standards (Step 3)
+  // Form for advanced standards (Step 4)
   const advancedForm = useForm<AdvancedStandards>({
     resolver: zodResolver(advancedStandardsSchema),
     defaultValues: defaultAdvancedValues
+  });
+  
+  // Project-specific forms (Step 5)
+  const commercialForm = useForm<CommercialStandards>({
+    resolver: zodResolver(commercialStandardsSchema),
+    defaultValues: defaultCommercialValues
+  });
+  
+  const residentialForm = useForm<ResidentialStandards>({
+    resolver: zodResolver(residentialStandardsSchema),
+    defaultValues: defaultResidentialValues
+  });
+  
+  const renovationForm = useForm<RenovationStandards>({
+    resolver: zodResolver(renovationStandardsSchema),
+    defaultValues: defaultRenovationValues
   });
   
   // Load existing standards if available
@@ -232,11 +266,11 @@ export default function StandardsWizard() {
   };
   
   const handleAdvancedSubmit = (data: AdvancedStandards) => {
-    goToStep(WizardStep.REVIEW);
+    goToStep(WizardStep.PROJECT_SPECIFIC_STANDARDS);
   };
   
   const handleSkipAdvanced = () => {
-    goToStep(WizardStep.REVIEW);
+    goToStep(WizardStep.PROJECT_SPECIFIC_STANDARDS);
   };
   
   const handleEditStandards = () => {
@@ -289,7 +323,7 @@ export default function StandardsWizard() {
                   Define your estimating standards clearly to speed up and improve the accuracy of your bids. This will take less than 5 minutes.
                 </p>
                 
-                <Button size="lg" onClick={() => goToStep(WizardStep.CRITICAL_STANDARDS)}>
+                <Button size="lg" onClick={() => goToStep(WizardStep.PROJECT_TYPE)}>
                   Start
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
@@ -297,7 +331,70 @@ export default function StandardsWizard() {
             </Card>
           )}
           
-          {/* Step 2: Critical Standards */}
+          {/* Step 2: Project Type Selection */}
+          {currentStep === WizardStep.PROJECT_TYPE && (
+            <Card>
+              <CardContent className="p-8">
+                <h2 className="text-xl font-bold text-slate-900 mb-2">
+                  Select Project Type
+                </h2>
+                <p className="text-slate-600 mb-6">
+                  Choose the type of projects you primarily work on. This will help us customize standards specific to your business.
+                </p>
+                
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-3 mb-8">
+                  <div 
+                    className={`border rounded-lg p-6 flex flex-col items-center cursor-pointer transition-all
+                      ${projectType === "commercial" ? "border-primary bg-primary-50" : "border-slate-200 hover:border-primary/50"}
+                    `}
+                    onClick={() => setProjectType("commercial")}
+                  >
+                    <Building className="h-12 w-12 mb-4 text-primary" />
+                    <h3 className="font-medium text-lg mb-2">Commercial</h3>
+                    <p className="text-sm text-center text-slate-500">Offices, retail, hospitality, and other business spaces.</p>
+                  </div>
+                  
+                  <div 
+                    className={`border rounded-lg p-6 flex flex-col items-center cursor-pointer transition-all
+                      ${projectType === "residential" ? "border-primary bg-primary-50" : "border-slate-200 hover:border-primary/50"}
+                    `}
+                    onClick={() => setProjectType("residential")}
+                  >
+                    <Home className="h-12 w-12 mb-4 text-primary" />
+                    <h3 className="font-medium text-lg mb-2">Residential</h3>
+                    <p className="text-sm text-center text-slate-500">Single-family homes, multi-family buildings, and apartments.</p>
+                  </div>
+                  
+                  <div 
+                    className={`border rounded-lg p-6 flex flex-col items-center cursor-pointer transition-all
+                      ${projectType === "renovation" ? "border-primary bg-primary-50" : "border-slate-200 hover:border-primary/50"}
+                    `}
+                    onClick={() => setProjectType("renovation")}
+                  >
+                    <Hammer className="h-12 w-12 mb-4 text-primary" />
+                    <h3 className="font-medium text-lg mb-2">Renovation</h3>
+                    <p className="text-sm text-center text-slate-500">Updating or repurposing existing spaces and structures.</p>
+                  </div>
+                </div>
+                
+                <div className="flex justify-end">
+                  <Button 
+                    onClick={() => {
+                      // Update the projectType in the critical form
+                      criticalForm.setValue("projectType", projectType);
+                      goToStep(WizardStep.CRITICAL_STANDARDS);
+                    }}
+                    className="flex items-center"
+                  >
+                    Continue
+                    <ChevronRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+          
+          {/* Step 3: Critical Standards */}
           {currentStep === WizardStep.CRITICAL_STANDARDS && (
             <Card>
               <CardContent className="p-8">
@@ -344,7 +441,62 @@ export default function StandardsWizard() {
             </Card>
           )}
           
-          {/* Step 4: Review & Confirm */}
+          {/* Step 5: Project-Specific Standards */}
+          {currentStep === WizardStep.PROJECT_SPECIFIC_STANDARDS && (
+            <Card>
+              <CardContent className="p-8">
+                <h2 className="text-xl font-bold text-slate-900 mb-2">
+                  {projectType === "commercial" ? "Commercial-Specific" : 
+                   projectType === "residential" ? "Residential-Specific" : 
+                   "Renovation-Specific"} Standards
+                </h2>
+                <p className="text-slate-600 mb-6">
+                  These standards are specific to your {projectType} projects and will help improve the accuracy of your estimates.
+                </p>
+                
+                {projectType === "commercial" && (
+                  <StandardsForm
+                    form={commercialForm}
+                    onSubmit={() => goToStep(WizardStep.REVIEW)}
+                    submitText="Next"
+                    submitIcon={<ChevronRight className="ml-2 h-5 w-5" />}
+                    isLoading={isLoading}
+                    showSkip
+                    onSkip={() => goToStep(WizardStep.REVIEW)}
+                    skipText="Skip for now"
+                  />
+                )}
+                
+                {projectType === "residential" && (
+                  <StandardsForm
+                    form={residentialForm}
+                    onSubmit={() => goToStep(WizardStep.REVIEW)}
+                    submitText="Next"
+                    submitIcon={<ChevronRight className="ml-2 h-5 w-5" />}
+                    isLoading={isLoading}
+                    showSkip
+                    onSkip={() => goToStep(WizardStep.REVIEW)}
+                    skipText="Skip for now"
+                  />
+                )}
+                
+                {projectType === "renovation" && (
+                  <StandardsForm
+                    form={renovationForm}
+                    onSubmit={() => goToStep(WizardStep.REVIEW)}
+                    submitText="Next"
+                    submitIcon={<ChevronRight className="ml-2 h-5 w-5" />}
+                    isLoading={isLoading}
+                    showSkip
+                    onSkip={() => goToStep(WizardStep.REVIEW)}
+                    skipText="Skip for now"
+                  />
+                )}
+              </CardContent>
+            </Card>
+          )}
+          
+          {/* Step 6: Review & Confirm */}
           {currentStep === WizardStep.REVIEW && (
             <Card>
               <CardContent className="p-8">
