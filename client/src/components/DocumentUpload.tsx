@@ -38,13 +38,19 @@ export default function DocumentUpload({ onUploadComplete }: DocumentUploadProps
     mutationFn: async (formData: FormData) => {
       setIsUploading(true);
       try {
-        return await apiRequest('/api/documents/upload', {
+        // Use fetch directly instead of apiRequest for file uploads
+        const response = await fetch('/api/documents/upload', {
           method: 'POST',
           body: formData,
-          headers: {
-            // Don't set Content-Type here, the browser will set it with the boundary
-          },
+          // No Content-Type header - browser will set it with the correct boundary
         });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Upload failed');
+        }
+        
+        return await response.json();
       } finally {
         setIsUploading(false);
       }

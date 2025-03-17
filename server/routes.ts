@@ -206,13 +206,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create document record
       const document = await storage.createDocument({
         userId,
-        filename: req.file.filename,
-        originalFilename: req.file.originalname,
+        name: validatedData.name,
         filePath: req.file.path,
         fileSize: req.file.size,
+        mimeType: req.file.mimetype,
         type: validatedData.type,
         description: validatedData.description || null,
-        processed: false
+        filename: req.file.filename,
+        originalFilename: req.file.originalname,
+        uploadedAt: new Date().toISOString()
       });
       
       // Update onboarding progress if this is a historic pricing document
