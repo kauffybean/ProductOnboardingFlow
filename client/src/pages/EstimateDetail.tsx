@@ -50,7 +50,9 @@ import {
   History,
   Maximize2,
   Eye,
-  EyeOff
+  EyeOff,
+  Lightbulb,
+  AlertTriangle
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { Link } from 'wouter';
@@ -1278,7 +1280,7 @@ export default function EstimateDetail() {
                   
                   <div className="bg-blue-50 border border-blue-100 rounded-md p-4">
                     <div className="flex items-start">
-                      <LightbulbIcon className="h-5 w-5 text-blue-500 mt-0.5 mr-3" />
+                      <Lightbulb className="h-5 w-5 text-blue-500 mt-0.5 mr-3" />
                       <div className="text-sm text-blue-700">
                         <p className="font-medium mb-1">Pro Tip</p>
                         <p>The "Review Final Estimate" button becomes available once your confidence score reaches 95% or higher. Focus on resolving flagged items to increase your score.</p>
