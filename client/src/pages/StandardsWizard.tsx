@@ -14,15 +14,30 @@ import StandardsForm from "@/components/StandardsForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Check, ArrowRight, ChevronRight, Pencil } from "lucide-react";
+import { Check, ArrowRight, ChevronRight, Pencil, Building, Home, Hammer, BuildingIcon } from "lucide-react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 
 import {
   criticalStandardsSchema,
   advancedStandardsSchema,
   fullStandardsSchema,
+  commercialStandardsSchema,
+  residentialStandardsSchema,
+  renovationStandardsSchema,
+  fullCommercialStandardsSchema,
+  fullResidentialStandardsSchema,
+  fullRenovationStandardsSchema,
   type CriticalStandards,
   type AdvancedStandards,
   type FullStandards,
+  type CommercialStandards,
+  type ResidentialStandards,
+  type RenovationStandards,
+  type FullCommercialStandards,
+  type FullResidentialStandards,
+  type FullRenovationStandards,
   type CompanyStandards
 } from "@shared/schema";
 
@@ -90,10 +105,12 @@ const getDisplayText = (key: string, value: any): string => {
 // Wizard steps
 enum WizardStep {
   WELCOME = 1,
-  CRITICAL_STANDARDS = 2,
-  ADVANCED_STANDARDS = 3,
-  REVIEW = 4,
-  COMPLETE = 5
+  PROJECT_TYPE = 2,
+  CRITICAL_STANDARDS = 3,
+  ADVANCED_STANDARDS = 4,
+  PROJECT_SPECIFIC_STANDARDS = 5,
+  REVIEW = 6,
+  COMPLETE = 7
 }
 
 export default function StandardsWizard() {
@@ -101,8 +118,12 @@ export default function StandardsWizard() {
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState<WizardStep>(WizardStep.WELCOME);
   
+  // Project type state
+  const [projectType, setProjectType] = useState<"commercial" | "residential" | "renovation">("commercial");
+  
   // Default values for form fields
   const defaultCriticalValues: CriticalStandards = {
+    projectType: "commercial",
     drywallWasteFactor: 10,
     flooringWasteFactor: 8,
     standardCeilingHeight: 9,

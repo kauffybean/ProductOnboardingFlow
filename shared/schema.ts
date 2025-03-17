@@ -20,6 +20,7 @@ export type User = typeof users.$inferSelect;
 export const companyStandards = pgTable("company_standards", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull(), // Reference to the user who created these standards
+  projectType: text("project_type").notNull(), // 'commercial', 'residential', 'renovation'
   
   // Critical Standards (Required)
   drywallWasteFactor: integer("drywall_waste_factor").notNull(), // Stored as integer percentage (e.g. 10 for 10%)
@@ -35,6 +36,20 @@ export const companyStandards = pgTable("company_standards", {
   doorMaterialStandard: text("door_material_standard"),
   ceilingTileBrand: text("ceiling_tile_brand"),
   restroomFixtureBrand: text("restroom_fixture_brand"),
+  
+  // Commercial-specific standards
+  commercialFireRating: text("commercial_fire_rating"),
+  commercialAccessibilityStandard: text("commercial_accessibility_standard"),
+  commercialFlooringType: text("commercial_flooring_type"),
+  
+  // Residential-specific standards
+  residentialInsulationRValue: integer("residential_insulation_r_value"),
+  residentialWindowType: text("residential_window_type"),
+  residentialFlooringType: text("residential_flooring_type"),
+  
+  // Renovation-specific standards
+  demolitionWasteFactor: integer("demolition_waste_factor"),
+  hazardousMaterialHandling: text("hazardous_material_handling"),
   
   // Metadata
   createdAt: text("created_at").notNull(), // ISO date string
@@ -172,6 +187,7 @@ export type ValidationIssue = typeof validationIssues.$inferSelect;
 
 // Form schemas for the standards wizard
 export const criticalStandardsSchema = z.object({
+  projectType: z.enum(["commercial", "residential", "renovation"]),
   drywallWasteFactor: z.number().min(0).max(100),
   flooringWasteFactor: z.number().min(0).max(100),
   standardCeilingHeight: z.number().min(7).max(30),
@@ -186,6 +202,26 @@ export const advancedStandardsSchema = z.object({
   doorMaterialStandard: z.enum(["hollow", "solid", "fire-rated"]).optional(),
   ceilingTileBrand: z.enum(["armstrong", "usg", "certainteed"]).optional(),
   restroomFixtureBrand: z.enum(["kohler", "toto", "american-standard"]).optional(),
+});
+
+// Commercial-specific standards schema
+export const commercialStandardsSchema = z.object({
+  commercialFireRating: z.enum(["1-hour", "2-hour", "3-hour", "4-hour"]).optional(),
+  commercialAccessibilityStandard: z.enum(["ada", "ansi-a117", "ibc"]).optional(),
+  commercialFlooringType: z.enum(["carpet-tile", "vct", "luxury-vinyl", "polished-concrete"]).optional(),
+});
+
+// Residential-specific standards schema
+export const residentialStandardsSchema = z.object({
+  residentialInsulationRValue: z.number().min(0).max(60).optional(),
+  residentialWindowType: z.enum(["single-pane", "double-pane", "triple-pane", "low-e"]).optional(),
+  residentialFlooringType: z.enum(["hardwood", "laminate", "carpet", "tile"]).optional(),
+});
+
+// Renovation-specific standards schema
+export const renovationStandardsSchema = z.object({
+  demolitionWasteFactor: z.number().min(0).max(100).optional(),
+  hazardousMaterialHandling: z.enum(["containment", "removal", "encapsulation", "abatement"]).optional(),
 });
 
 // Form schema for document upload
@@ -217,6 +253,27 @@ export const validationResolutionSchema = z.object({
 
 export type CriticalStandards = z.infer<typeof criticalStandardsSchema>;
 export type AdvancedStandards = z.infer<typeof advancedStandardsSchema>;
+export type CommercialStandards = z.infer<typeof commercialStandardsSchema>;
+export type ResidentialStandards = z.infer<typeof residentialStandardsSchema>;
+export type RenovationStandards = z.infer<typeof renovationStandardsSchema>;
 
+export const fullCommercialStandardsSchema = criticalStandardsSchema
+  .merge(advancedStandardsSchema)
+  .merge(commercialStandardsSchema);
+
+export const fullResidentialStandardsSchema = criticalStandardsSchema
+  .merge(advancedStandardsSchema)
+  .merge(residentialStandardsSchema);
+
+export const fullRenovationStandardsSchema = criticalStandardsSchema
+  .merge(advancedStandardsSchema)
+  .merge(renovationStandardsSchema);
+
+// For backwards compatibility
 export const fullStandardsSchema = criticalStandardsSchema.merge(advancedStandardsSchema);
 export type FullStandards = z.infer<typeof fullStandardsSchema>;
+
+// Project-type specific full standards
+export type FullCommercialStandards = z.infer<typeof fullCommercialStandardsSchema>;
+export type FullResidentialStandards = z.infer<typeof fullResidentialStandardsSchema>;
+export type FullRenovationStandards = z.infer<typeof fullRenovationStandardsSchema>;
