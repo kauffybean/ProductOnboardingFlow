@@ -119,15 +119,10 @@ export default function CreateProject() {
       // Update onboarding progress
       updateProgressMutation.mutate();
       
-      // First show loading screen by setting processing step
-      setCurrentStep(ProjectStep.PROCESSING);
-      
-      // Then navigate to estimate detail after simulated processing
+      // After simulated processing, move to the Complete step
       setTimeout(() => {
-        // In a real implementation, we would have the estimateId from the response
-        // For now, navigate to validation dashboard which will show the latest estimate
-        navigate("/validation-dashboard");
-      }, 3000);
+        setCurrentStep(ProjectStep.COMPLETE);
+      }, 4000);
     },
     onError: (error) => {
       toast({
@@ -198,7 +193,14 @@ export default function CreateProject() {
   // Handle review step completion
   const handleReviewSubmit = () => {
     if (projectData) {
-      createProjectMutation.mutate(projectData);
+      // First, transition to processing screen
+      setCurrentStep(ProjectStep.PROCESSING);
+      
+      // Simulate processing with setTimeout
+      setTimeout(() => {
+        // After "processing", create the project
+        createProjectMutation.mutate(projectData);
+      }, 3000);
     } else {
       toast({
         title: "Missing project information",
@@ -625,6 +627,70 @@ export default function CreateProject() {
     );
   };
   
+  const renderProcessingStep = () => {
+    return (
+      <>
+        <Card className="mb-8">
+          <CardContent className="p-10">
+            <div className="flex flex-col items-center justify-center text-center">
+              <div className="mb-8 relative">
+                <div className="w-24 h-24 rounded-full bg-blue-100 flex items-center justify-center mx-auto">
+                  <FileBarChart className="h-12 w-12 text-blue-600" />
+                </div>
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-24 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+              </div>
+              
+              <h2 className="text-2xl font-bold mb-3">Generating Your Estimate</h2>
+              <p className="text-slate-600 text-center max-w-md mb-8">
+                We're processing your project information and applying your company standards to generate an accurate estimate.
+              </p>
+              
+              <div className="w-full max-w-md mb-6">
+                <Progress value={65} className="h-2" />
+              </div>
+              
+              <div className="space-y-4 mt-6 text-left w-full max-w-lg">
+                <div className="flex items-center p-3 bg-green-50 rounded-lg border border-green-100">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
+                  <div>
+                    <span className="font-medium">Extracting information from documents</span>
+                    <p className="text-sm text-slate-600 mt-0.5">Processing uploaded project documents</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center p-3 bg-green-50 rounded-lg border border-green-100">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
+                  <div>
+                    <span className="font-medium">Applying company standards</span>
+                    <p className="text-sm text-slate-600 mt-0.5">Applying your defined standards to calculations</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center p-3 bg-blue-50 rounded-lg border border-blue-100">
+                  <div className="h-5 w-5 mr-3 flex-shrink-0 relative">
+                    <Loader2 className="h-5 w-5 text-blue-500 animate-spin" />
+                  </div>
+                  <div>
+                    <span className="font-medium">Calculating material quantities</span>
+                    <p className="text-sm text-slate-600 mt-0.5">Determining quantities based on specifications</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center p-3 bg-slate-50 rounded-lg border border-slate-200">
+                  <Circle className="h-5 w-5 text-slate-300 mr-3 flex-shrink-0" />
+                  <div>
+                    <span className="font-medium text-slate-600">Generating final estimate</span>
+                    <p className="text-sm text-slate-500 mt-0.5">Finalizing price calculations and validation</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </>
+    );
+  };
+  
   const renderCompleteStep = () => {
     return (
       <>
@@ -724,11 +790,12 @@ export default function CreateProject() {
         </div>
       </div>
       
-      {currentStep !== ProjectStep.COMPLETE && renderStepIndicator()}
+      {currentStep !== ProjectStep.COMPLETE && currentStep !== ProjectStep.PROCESSING && renderStepIndicator()}
       
       {currentStep === ProjectStep.PROJECT_INFO && renderProjectInfoStep()}
       {currentStep === ProjectStep.DOCUMENTS && renderDocumentsStep()}
       {currentStep === ProjectStep.REVIEW && renderReviewStep()}
+      {currentStep === ProjectStep.PROCESSING && renderProcessingStep()}
       {currentStep === ProjectStep.COMPLETE && renderCompleteStep()}
     </div>
   );
