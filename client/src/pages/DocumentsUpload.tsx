@@ -127,7 +127,7 @@ export default function DocumentsUpload() {
         <div className="mb-8">
           <h2 className="text-xl font-medium text-center mb-6">Choose how you want to add your pricing information</h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             {/* Document Upload Card */}
             <Card className="flex flex-col">
               <CardHeader>
@@ -209,48 +209,30 @@ export default function DocumentsUpload() {
                 </Button>
               </CardFooter>
             </Card>
-
-            {/* Skip Step Card */}
-            <Card className="flex flex-col border-dashed">
-              <CardHeader>
-                <div className="flex justify-center mb-2">
-                  <div className="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center">
-                    <SkipForward className="h-8 w-8 text-amber-600" />
-                  </div>
+          </div>
+          
+          {/* Skip Option Banner */}
+          <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 mb-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <div className="h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0 mr-4">
+                  <SkipForward className="h-5 w-5 text-amber-600" />
                 </div>
-                <CardTitle className="text-center">Skip This Step</CardTitle>
-                <CardDescription className="text-center">
-                  Continue without adding pricing information
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="flex-grow">
-                <div className="space-y-4">
-                  <div className="rounded-md border border-slate-200 p-3">
-                    <div className="flex gap-3 items-start">
-                      <div className="h-8 w-8 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
-                        <AlertCircle className="h-4 w-4 text-amber-600" />
-                      </div>
-                      <div>
-                        <h3 className="font-medium text-slate-900">Add Later</h3>
-                        <p className="text-sm text-slate-500 mt-1">
-                          You can always come back and add this information later
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+                <div>
+                  <h3 className="font-medium text-slate-900">Skip this step?</h3>
+                  <p className="text-sm text-slate-600">
+                    You can always come back and add pricing information later
+                  </p>
                 </div>
-              </CardContent>
-              <CardFooter className="pt-4 pb-6 flex-shrink-0">
-                <Button 
-                  variant="outline"
-                  className="w-full"
-                  onClick={handleSkip}
-                >
-                  <SkipForward className="mr-2 h-4 w-4" />
-                  Skip For Now
-                </Button>
-              </CardFooter>
-            </Card>
+              </div>
+              <Button 
+                variant="outline"
+                size="sm"
+                onClick={handleSkip}
+              >
+                Skip For Now
+              </Button>
+            </div>
           </div>
         </div>
       )}

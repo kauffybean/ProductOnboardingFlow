@@ -58,7 +58,6 @@ const projectSchema = z.object({
   projectType: z.enum(["commercial", "residential", "renovation"], {
     required_error: "Please select a project type",
   }),
-  totalArea: z.coerce.number().positive({ message: "Please enter a valid area" }),
   notes: z.string().optional(),
 });
 
@@ -86,7 +85,6 @@ export default function CreateProject() {
     defaultValues: {
       name: "",
       projectType: "commercial",
-      totalArea: 0,
       notes: "",
     },
   });
@@ -207,7 +205,7 @@ export default function CreateProject() {
   
   // Handle finish
   const handleFinish = () => {
-    navigate("/");
+    navigate("/validation-dashboard");
   };
   
   const renderStepIndicator = () => {
@@ -270,62 +268,46 @@ export default function CreateProject() {
                   )}
                 />
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="projectType"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Project Type</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select project type" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="commercial">
-                              <div className="flex items-center">
-                                <Building className="h-4 w-4 mr-2" />
-                                Commercial
-                              </div>
-                            </SelectItem>
-                            <SelectItem value="residential">
-                              <div className="flex items-center">
-                                <Home className="h-4 w-4 mr-2" />
-                                Residential
-                              </div>
-                            </SelectItem>
-                            <SelectItem value="renovation">
-                              <div className="flex items-center">
-                                <ClipboardEdit className="h-4 w-4 mr-2" />
-                                Renovation
-                              </div>
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="totalArea"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Total Area (sqft)</FormLabel>
+                <FormField
+                  control={form.control}
+                  name="projectType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Project Type</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
                         <FormControl>
-                          <Input type="number" min="0" {...field} />
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select project type" />
+                          </SelectTrigger>
                         </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                        <SelectContent>
+                          <SelectItem value="commercial">
+                            <div className="flex items-center">
+                              <Building className="h-4 w-4 mr-2" />
+                              Commercial
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="residential">
+                            <div className="flex items-center">
+                              <Home className="h-4 w-4 mr-2" />
+                              Residential
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="renovation">
+                            <div className="flex items-center">
+                              <ClipboardEdit className="h-4 w-4 mr-2" />
+                              Renovation
+                            </div>
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 
                 <FormField
                   control={form.control}
@@ -702,7 +684,7 @@ export default function CreateProject() {
             
             <div className="flex justify-center pt-6">
               <Button onClick={handleFinish} className="px-8">
-                Go to Dashboard
+                View Validation Dashboard
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </div>
