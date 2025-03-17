@@ -28,6 +28,7 @@ import {
   ChevronDown,
   ChevronRight,
   HelpCircle,
+  RotateCcw,
   Users,
   ArrowRight,
   CircleCheck,
@@ -375,22 +376,42 @@ export default function EstimateDetail() {
           )}
           
           {estimate.status === 'validated' && (
-            <Button 
-              onClick={handleSubmit}
-              disabled={submitMutation.isPending}
-            >
-              {submitMutation.isPending ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Submitting...
-                </>
-              ) : (
-                <>
-                  <Send className="mr-2 h-4 w-4" />
-                  Submit Estimate
-                </>
-              )}
-            </Button>
+            <div className="flex space-x-2">
+              <Button 
+                onClick={handleSubmit}
+                disabled={submitMutation.isPending}
+              >
+                {submitMutation.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Submitting...
+                  </>
+                ) : (
+                  <>
+                    <Send className="mr-2 h-4 w-4" />
+                    Submit Estimate
+                  </>
+                )}
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  // Navigate to the standards wizard to restart the demo
+                  navigate('/standards-wizard');
+                  
+                  // Show a message to the user
+                  toast({
+                    title: 'Demo Reset',
+                    description: 'The demo has been reset. You can start over from the beginning.',
+                    variant: 'default',
+                  });
+                }}
+              >
+                <RotateCcw className="mr-2 h-4 w-4" />
+                Restart Demo
+              </Button>
+            </div>
           )}
         </div>
       </div>

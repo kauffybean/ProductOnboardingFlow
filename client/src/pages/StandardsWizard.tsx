@@ -652,13 +652,37 @@ export default function StandardsWizard() {
                   You've successfully set your company standards. You're already on your way to faster and more accurate bids.
                 </p>
                 
-                <Button 
-                  size="lg"
-                  onClick={handleGoToNextOnboarding}
-                >
-                  Next Step: Upload Historic Pricing
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
+                <div className="flex flex-col md:flex-row items-center justify-center gap-4">
+                  <Button 
+                    size="lg"
+                    onClick={handleGoToNextOnboarding}
+                  >
+                    Next Step: Upload Historic Pricing
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    className="flex items-center"
+                    onClick={() => {
+                      // Reset all forms
+                      criticalForm.reset(defaultCriticalValues);
+                      advancedForm.reset(defaultAdvancedValues);
+                      commercialForm.reset(defaultCommercialValues);
+                      residentialForm.reset(defaultResidentialValues);
+                      renovationForm.reset(defaultRenovationValues);
+                      
+                      // Reset project type
+                      setProjectType("commercial");
+                      
+                      // Go back to welcome step
+                      goToStep(WizardStep.WELCOME);
+                    }}
+                  >
+                    <RotateCcw className="mr-2 h-5 w-5" />
+                    Restart Demo
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           )}
