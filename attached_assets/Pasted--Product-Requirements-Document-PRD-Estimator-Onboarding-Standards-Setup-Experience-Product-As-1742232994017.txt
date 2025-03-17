@@ -1,0 +1,180 @@
+📘 Product Requirements Document (PRD)
+Estimator Onboarding & Standards Setup Experience
+Product: Assembli
+Feature Area: User Onboarding & Company Standards Definition
+Audience: SMBs (Small-to-Medium-sized Businesses), Estimators
+
+🔍 Background & Goal
+Provide estimators a simple, guided, and intuitive onboarding experience to define their construction estimating standards clearly, enabling Assembli’s AI-driven estimation to leverage these defaults effectively.
+
+The onboarding experience focuses on a step-by-step wizard from the user dashboard, clearly emphasizing simplicity, minimal friction, and providing immediate value and confidence to the estimator.
+
+🎯 Target User
+Primary: SMB Construction Estimators/Owners
+Needs: Easy initial setup, clear understanding of defaults, minimal ambiguity
+Constraints: Limited time, resources, and technical proficiency—requiring simple and clear UX
+🧩 End-to-End Dashboard Experience (Onboarding Wizard)
+(For context—standards definition detailed below)
+
+[✅] Set Company Standards (This PRD’s focus)
+[⬜️] Upload Historic Pricing
+[⬜️] Create Your First Estimate
+[⬜️] Validate & Refine (Mock-up included below)
+[⬜️] Submit Your First Bid
+✅ Core PRD: "Set Company Standards" Flow (Detailed Requirements)
+1️⃣ Entry Point (Dashboard Checklist):
+Clearly visible onboarding checklist on main dashboard.
+
+UI Copy Example:
+
+Welcome to Assembli! Let’s get you started quickly.
+
+✅ Set Your Company Standards (5 min)
+⬜️ Upload Historic Pricing
+⬜️ Create Your First Estimate
+⬜️ Validate & Refine Your Estimate
+⬜️ Submit Your First Bid
+
+2️⃣ Standards Onboarding Wizard (UI Flow):
+User initiates "Set Your Company Standards":
+
+Step 1 (Welcome):
+
+"Define your estimating standards clearly to speed up and improve the accuracy of your bids."
+(CTA: Start →)
+
+📌 Step 2: Define Critical Standards (Mandatory)
+Clear headline: "Critical Standards (Required)"
+
+Clearly indicated mandatory fields (validated):
+
+Drywall Waste Factor (%) (default: 10%)
+Flooring Waste Factor (%) (default: 8%)
+Standard Ceiling Height (default: 9’ AFF)
+Flooring Installation Method (default: Adhesive)
+Preferred HVAC Equipment Brand (Carrier, Trane, Lennox, Daikin)
+UX Requirements:
+
+Simple inputs: Dropdowns, percentage sliders, or simple numeric inputs
+Defaults pre-filled for fast onboarding
+Validation clearly indicated (red/error if left empty or invalid)
+UI Copy Example (UX Copywriting):
+
+"Tell us how you usually estimate your most common materials and installation methods. You can update these at any time."
+
+(CTA: Next →)
+
+⚙️ Step 3: Advanced Standards (Optional)
+Headline clearly indicates optional nature:
+"Advanced Standards (Optional, Recommended)"
+
+Defaults clearly pre-filled for optional fields:
+
+Drywall Finish Level (default Level 4)
+Paint Finish Standard (default Eggshell)
+Wall Framing Standard (default Metal Stud 16" OC)
+Door Material Standard (default Solid-core)
+Ceiling Tile Brand Standard (Armstrong/USG)
+Restroom Fixture Brand (Kohler/Toto)
+UX Requirements:
+
+Optional fields clearly indicated as "recommended but optional"
+Users can skip/continue easily without friction
+Tooltip or quick references for clarity
+UX Copy Example:
+
+"Set these additional standards to make your estimates even more accurate. Feel free to skip for now and return later."
+
+(CTA: Skip → or Next →)
+
+📌 Step 4: Review & Confirm Standards
+Clearly display selected standards:
+
+markdown
+Copy
+Edit
+📝 **Your Company Standards**  
+
+Critical:  
+- Drywall Waste: 10%  
+- Flooring Waste: 8%  
+- Ceiling Height: 9’ AFF  
+- Flooring Installation: Adhesive  
+- HVAC Brand: Carrier  
+
+Optional (Advanced):  
+- Drywall Finish Level: Level 4  
+- Paint Finish: Eggshell  
+- Wall Framing: Metal 16" OC  
+
+[ Edit Standards ] | [ Confirm and Save ✅ ]
+🎉 Completion Screen (Positive Reinforcement)
+"Great job! You’ve successfully set your company standards. You're already on your way to faster and more accurate bids."
+
+Next Step: ⬜️ Upload Historic Pricing (Continue →)
+
+🖥️ Detailed UI/UX Principles
+Minimalism & Clarity: Only essentials, minimal steps
+Progress Indicators: Clear indication of progress/status throughout wizard
+Validation Feedback: Immediate visual feedback for mandatory fields
+Simple Copywriting: Clear, concise, supportive tone
+Quick Editing: Users can easily return/edit standards any time from dashboard
+🚨 Edge Cases for Future Consideration
+Different standards per Project Type (Commercial, Residential, Healthcare, etc.)
+Regional building code variations
+User-defined standards that evolve over time (AI-driven learning from overrides)
+📊 "Validate & Refine" UX/UI Mock-up (Detailed Specification)
+After generating an initial estimate, users clearly see a "Confidence & Validation" dashboard:
+
+markdown
+Copy
+Edit
+====================================================================
+📊 **Estimate Validation & Refinement Center**
+
+🟢 Estimate Confidence: 84%  
+
+✅ **Automatically Applied Standards (5)**  
+- Drywall Waste: 10% (Default)  
+- Flooring Method: Adhesive (Default)  
+- Ceiling Height: 9' AFF (Default)  
+
+⚠️ **Ambiguities Requiring Clarification (2)**  
+1. **Lobby Flooring Type unclear**  
+   [ Select Flooring Type ▼ ]  
+   *(Suggested options: LVT, Hardwood, Carpet Tile)*
+
+2. **Paint Color not defined (Tenant Branding)**  
+   [ Clarify internally ] | [ Delegate to SME ]
+
+🚩 **Items Delegated to SMEs (1)**  
+- HVAC Load Calculations (Sent to John Doe, Mechanical SME) [View Status]
+
+---
+
+**Actions:**  
+[ Confirm and Update Estimate ✅ ] [ Delegate More Items 👤 ] [ Edit Standards ⚙️ ]
+
+====================================================================
+Detailed Requirements for Designer:
+
+Provide clear, concise visual hierarchy (confidence score clearly prominent)
+Clearly segmented sections: standards vs ambiguities vs delegated tasks
+Dropdowns/suggestions intuitive for ambiguities
+Easy, seamless delegation UI clearly marked
+Confidence % clearly tied visually to unresolved ambiguity
+🚦 Confidence Score & Alerting System
+Confidence	Action/Alerts UI Behavior
+🟢 85-100%	Green: High confidence, minimal ambiguity
+🟡 65-84%	Yellow: Moderate ambiguity, clearly indicated tasks
+🟠 40-64%	Orange: High ambiguity, SME delegation encouraged
+🔴 <40%	Red: Critical ambiguity, immediate SME/Client escalation
+⚡️ Final Notes to Designer
+Emphasize simplicity—assume low technical expertise
+Intuitive UX (progress bars, clear prompts, defaults pre-filled)
+Conversational & encouraging tone (UX copy)
+Robust yet minimalist UI components (clear input fields, visual hierarchy, tooltips)
+🌟 Summary & Goal
+This PRD empowers estimators to define and validate their standards intuitively, quickly builds their confidence in the accuracy of the AI-driven estimates, and clearly aligns with Assembli’s goals to automate and simplify the bidding workflow.
+
+Please let me know if you’d like to refine or expand upon any of the requirements or concepts further!
