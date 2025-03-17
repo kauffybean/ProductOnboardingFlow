@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, jsonb, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -64,6 +64,104 @@ export const insertOnboardingProgressSchema = createInsertSchema(onboardingProgr
 export type InsertOnboardingProgress = z.infer<typeof insertOnboardingProgressSchema>;
 export type OnboardingProgress = typeof onboardingProgress.$inferSelect;
 
+// Documents schema (for schematic and pricing uploads)
+export const documents = pgTable("documents", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  name: text("name").notNull(),
+  type: text("type").notNull(), // 'schematic', 'pricing', 'material_list'
+  filePath: text("file_path").notNull(), 
+  fileSize: integer("file_size").notNull(),
+  mimeType: text("mime_type").notNull(),
+  processed: boolean("processed").notNull().default(false),
+  uploadedAt: text("uploaded_at").notNull(), // ISO date string
+});
+
+export const insertDocumentSchema = createInsertSchema(documents)
+  .omit({ id: true, processed: true });
+
+export type InsertDocument = z.infer<typeof insertDocumentSchema>;
+export type Document = typeof documents.$inferSelect;
+
+// Materials schema
+export const materials = pgTable("materials", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  category: text("category").notNull(), // e.g. 'drywall', 'flooring', 'paint', etc.
+  name: text("name").notNull(),
+  unit: text("unit").notNull(), // e.g. 'sqft', 'sheet', 'gallon', etc.
+  unitPrice: integer("unit_price"), // In cents
+  supplier: text("supplier"),
+  notes: text("notes"),
+  createdAt: text("created_at").notNull(), // ISO date string
+  updatedAt: text("updated_at").notNull(), // ISO date string
+});
+
+export const insertMaterialSchema = createInsertSchema(materials)
+  .omit({ id: true, createdAt: true, updatedAt: true });
+
+export type InsertMaterial = z.infer<typeof insertMaterialSchema>;
+export type Material = typeof materials.$inferSelect;
+
+// Estimates schema
+export const estimates = pgTable("estimates", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  name: text("name").notNull(),
+  projectType: text("project_type").notNull(), // e.g. 'commercial', 'residential', 'renovation'
+  totalArea: integer("total_area").notNull(), // In square feet
+  totalCost: integer("total_cost").notNull(), // In cents
+  status: text("status").notNull(), // 'draft', 'in_progress', 'validated', 'submitted'
+  confidenceScore: integer("confidence_score"), // 0-100
+  notes: text("notes"),
+  createdAt: text("created_at").notNull(), // ISO date string
+  updatedAt: text("updated_at").notNull(), // ISO date string
+});
+
+export const insertEstimateSchema = createInsertSchema(estimates)
+  .omit({ id: true, createdAt: true, updatedAt: true });
+
+export type InsertEstimate = z.infer<typeof insertEstimateSchema>;
+export type Estimate = typeof estimates.$inferSelect;
+
+// Estimate Items (Bill of Materials)
+export const estimateItems = pgTable("estimate_items", {
+  id: serial("id").primaryKey(),
+  estimateId: integer("estimate_id").notNull(),
+  materialId: integer("material_id").notNull(),
+  quantity: integer("quantity").notNull(),
+  unitPrice: integer("unit_price").notNull(), // In cents
+  totalPrice: integer("total_price").notNull(), // In cents (quantity * unitPrice)
+  notes: text("notes"),
+  createdAt: text("created_at").notNull(), // ISO date string
+  updatedAt: text("updated_at").notNull(), // ISO date string
+});
+
+export const insertEstimateItemSchema = createInsertSchema(estimateItems)
+  .omit({ id: true, totalPrice: true, createdAt: true, updatedAt: true });
+
+export type InsertEstimateItem = z.infer<typeof insertEstimateItemSchema>;
+export type EstimateItem = typeof estimateItems.$inferSelect;
+
+// Validation Issues
+export const validationIssues = pgTable("validation_issues", {
+  id: serial("id").primaryKey(),
+  estimateId: integer("estimate_id").notNull(),
+  type: text("type").notNull(), // 'ambiguity', 'missing_info', 'pricing_discrepancy', 'material_selection'
+  description: text("description").notNull(),
+  status: text("status").notNull(), // 'open', 'resolved', 'delegated'
+  resolution: text("resolution"),
+  assignedTo: text("assigned_to"), // SME username if delegated
+  createdAt: text("created_at").notNull(), // ISO date string
+  updatedAt: text("updated_at").notNull(), // ISO date string
+});
+
+export const insertValidationIssueSchema = createInsertSchema(validationIssues)
+  .omit({ id: true, createdAt: true, updatedAt: true });
+
+export type InsertValidationIssue = z.infer<typeof insertValidationIssueSchema>;
+export type ValidationIssue = typeof validationIssues.$inferSelect;
+
 // Form schemas for the standards wizard
 export const criticalStandardsSchema = z.object({
   drywallWasteFactor: z.number().min(0).max(100),
@@ -80,6 +178,28 @@ export const advancedStandardsSchema = z.object({
   doorMaterialStandard: z.enum(["hollow", "solid", "fire-rated"]).optional(),
   ceilingTileBrand: z.enum(["armstrong", "usg", "certainteed"]).optional(),
   restroomFixtureBrand: z.enum(["kohler", "toto", "american-standard"]).optional(),
+});
+
+// Form schema for document upload
+export const documentUploadSchema = z.object({
+  name: z.string().min(1, "File name is required"),
+  type: z.enum(["schematic", "pricing", "material_list"]),
+  file: z.any(),
+});
+
+// Form schema for estimate creation
+export const estimateCreationSchema = z.object({
+  name: z.string().min(1, "Estimate name is required"),
+  projectType: z.enum(["commercial", "residential", "renovation"]),
+  totalArea: z.number().min(1, "Area is required"),
+  notes: z.string().optional(),
+});
+
+// Form schema for validation issue resolution
+export const validationResolutionSchema = z.object({
+  resolution: z.string().min(1, "Resolution is required"),
+  status: z.enum(["resolved", "delegated"]),
+  assignedTo: z.string().optional(),
 });
 
 export type CriticalStandards = z.infer<typeof criticalStandardsSchema>;

@@ -12,11 +12,10 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
         <div className="flex items-center cursor-pointer" onClick={() => navigate("/")}>
           <img 
-            src="/assets/assembli-logo.jpeg" 
+            src="/assets/assembli-logo.png" 
             alt="Assembli Logo" 
-            className="h-8 w-auto"
+            className="h-10 w-auto"
           />
-          <span className="ml-2 text-xl font-bold text-slate-800">Assembli</span>
         </div>
         <div className="flex items-center">
           <Button variant="ghost" size="icon" className="rounded-full text-slate-500">
