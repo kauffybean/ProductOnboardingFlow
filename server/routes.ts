@@ -438,7 +438,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // For estimate details route, create mockup estimate items for the new estimate
       const materialCategories = ["Drywall & Framing", "Flooring", "Electrical", "Plumbing", "HVAC", "Finishes"];
-      const materialNames = {
+      const materialNames: { [key: string]: string[] } = {
         "Drywall & Framing": ["5/8\" Drywall", "Metal Studs", "Wood Studs", "Track", "Insulation"],
         "Flooring": ["Carpet Tiles", "Ceramic Tile", "Luxury Vinyl Tile", "Hardwood", "Subfloor"],
         "Electrical": ["Electrical Wiring", "Outlets", "Switches", "Light Fixtures", "Electrical Panels"],
@@ -692,7 +692,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           status,
           description,
           resolution: null,
-          assignedTo: null
+          assignedTo: null,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
         });
         
         issues.push(issue);

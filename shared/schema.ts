@@ -146,7 +146,7 @@ export const estimateItems = pgTable("estimate_items", {
 });
 
 export const insertEstimateItemSchema = createInsertSchema(estimateItems)
-  .omit({ id: true, createdAt: true, updatedAt: true });
+  .omit({ id: true });
 
 export type InsertEstimateItem = z.infer<typeof insertEstimateItemSchema>;
 export type EstimateItem = typeof estimateItems.$inferSelect;
