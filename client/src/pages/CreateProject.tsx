@@ -101,12 +101,23 @@ export default function CreateProject() {
   // Mutation for creating project
   const createProjectMutation = useMutation({
     mutationFn: async (data: ProjectFormValues) => {
-      // Simulate API call for prototype
-      // In a real implementation, this would be an actual API call
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve({ id: 1, ...data });
-        }, 1000);
+      // Create an actual estimate in the database instead of just simulation
+      return await apiRequest('/api/estimates', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: data.name,
+          projectType: data.projectType,
+          notes: data.notes || '',
+          totalCost: 450000,
+          totalArea: 2500,
+          status: 'draft',
+          confidenceScore: 85,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        })
       });
     },
     onSuccess: (data) => {
@@ -119,10 +130,13 @@ export default function CreateProject() {
       // Update onboarding progress
       updateProgressMutation.mutate();
       
+      // Get the estimate ID from the response
+      const estimateId = data?.id || 1;
+      
       // After simulated processing, navigate directly to the estimate dashboard
       setTimeout(() => {
         // Navigate directly to the estimate detail page instead of showing the Complete step
-        navigate("/estimates/1");
+        navigate(`/estimates/${estimateId}`);
       }, 4000);
     },
     onError: (error) => {

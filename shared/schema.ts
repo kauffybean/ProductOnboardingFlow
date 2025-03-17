@@ -121,8 +121,7 @@ export const estimates = pgTable("estimates", {
   updatedAt: text("updated_at").notNull(), // ISO date string
 });
 
-export const insertEstimateSchema = createInsertSchema(estimates)
-  .omit({ id: true, createdAt: true, updatedAt: true });
+export const insertEstimateSchema = createInsertSchema(estimates);
 
 export type InsertEstimate = z.infer<typeof insertEstimateSchema>;
 export type Estimate = typeof estimates.$inferSelect;
@@ -132,16 +131,22 @@ export const estimateItems = pgTable("estimate_items", {
   id: serial("id").primaryKey(),
   estimateId: integer("estimate_id").notNull(),
   materialId: integer("material_id").notNull(),
+  materialName: text("material_name").notNull(),
+  category: text("category").notNull(),
   quantity: integer("quantity").notNull(),
+  unit: text("unit").notNull(),
   unitPrice: integer("unit_price").notNull(), // In cents
   totalPrice: integer("total_price").notNull(), // In cents (quantity * unitPrice)
+  wasteFactor: integer("waste_factor"), // In percentage
+  description: text("description"),
+  priceSource: text("price_source"),
   notes: text("notes"),
   createdAt: text("created_at").notNull(), // ISO date string
   updatedAt: text("updated_at").notNull(), // ISO date string
 });
 
 export const insertEstimateItemSchema = createInsertSchema(estimateItems)
-  .omit({ id: true, totalPrice: true, createdAt: true, updatedAt: true });
+  .omit({ id: true, createdAt: true, updatedAt: true });
 
 export type InsertEstimateItem = z.infer<typeof insertEstimateItemSchema>;
 export type EstimateItem = typeof estimateItems.$inferSelect;
@@ -160,7 +165,7 @@ export const validationIssues = pgTable("validation_issues", {
 });
 
 export const insertValidationIssueSchema = createInsertSchema(validationIssues)
-  .omit({ id: true, createdAt: true, updatedAt: true });
+  .omit({ id: true });
 
 export type InsertValidationIssue = z.infer<typeof insertValidationIssueSchema>;
 export type ValidationIssue = typeof validationIssues.$inferSelect;
@@ -195,6 +200,11 @@ export const estimateCreationSchema = z.object({
   name: z.string().min(1, "Estimate name is required"),
   projectType: z.enum(["commercial", "residential", "renovation"]),
   totalArea: z.number().min(1, "Area is required"),
+  totalCost: z.number().optional(),
+  status: z.string().optional(),
+  confidenceScore: z.number().optional(),
+  createdAt: z.string().optional(),
+  updatedAt: z.string().optional(),
   notes: z.string().optional(),
 });
 
