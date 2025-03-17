@@ -30,7 +30,10 @@ import {
   SkipForward,
   Mic,
   MessageSquare,
-  AlertCircle
+  AlertCircle,
+  Receipt,
+  FileSpreadsheet,
+  File
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { type OnboardingProgress } from '@shared/schema';
@@ -39,12 +42,37 @@ export default function DocumentsUpload() {
   const [, navigate] = useLocation();
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [activeTab, setActiveTab] = useState('selection');
+  const [showProcessingScreen, setShowProcessingScreen] = useState(false);
   const queryClient = useQueryClient();
   const { toast } = useToast();
   
   const { data: progress, refetch: refetchProgress } = useQuery<OnboardingProgress>({
     queryKey: ['/api/onboarding-progress'],
   });
+  
+  // Recommended document types
+  const recommendedDocuments = [
+    { 
+      icon: <Receipt className="h-5 w-5 text-blue-600" />, 
+      title: "Supplier Invoices", 
+      description: "Recent invoices from material suppliers" 
+    },
+    { 
+      icon: <FileSpreadsheet className="h-5 w-5 text-green-600" />, 
+      title: "Price Catalogs", 
+      description: "Supplier price sheets and catalogs" 
+    },
+    { 
+      icon: <File className="h-5 w-5 text-purple-600" />, 
+      title: "Job Quotes", 
+      description: "Previous job quotes showing material costs" 
+    },
+    { 
+      icon: <FileText className="h-5 w-5 text-orange-600" />, 
+      title: "Purchase Orders", 
+      description: "POs showing quantity and prices" 
+    }
+  ];
   
   const handleSkip = async () => {
     try {
@@ -81,6 +109,16 @@ export default function DocumentsUpload() {
     navigate('/standards-wizard');
   };
   
+  const handleProcessDocuments = () => {
+    setShowProcessingScreen(true);
+    
+    toast({
+      title: 'Processing documents',
+      description: 'Your documents are being analyzed for pricing information',
+      variant: 'default',
+    });
+  };
+  
   const handleUploadComplete = async () => {
     setShowSuccessMessage(true);
     
@@ -99,7 +137,7 @@ export default function DocumentsUpload() {
       
       toast({
         title: 'Documents uploaded successfully',
-        description: 'Your documents are ready for estimation',
+        description: 'Your documents are ready for processing',
         variant: 'default',
       });
     } catch (error) {
@@ -143,19 +181,21 @@ export default function DocumentsUpload() {
               </CardHeader>
               <CardContent className="flex-grow">
                 <div className="space-y-4">
-                  <div className="rounded-md border border-slate-200 p-3">
-                    <div className="flex gap-3 items-start">
-                      <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                        <FileText className="h-4 w-4 text-green-600" />
-                      </div>
-                      <div>
-                        <h3 className="font-medium text-slate-900">Supplier Invoices</h3>
-                        <p className="text-sm text-slate-500 mt-1">
-                          Upload your recent invoices from material suppliers
-                        </p>
+                  {recommendedDocuments.slice(0, 2).map((doc, index) => (
+                    <div key={index} className="rounded-md border border-slate-200 p-3">
+                      <div className="flex gap-3 items-start">
+                        <div className="h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0">
+                          {doc.icon}
+                        </div>
+                        <div>
+                          <h3 className="font-medium text-slate-900">{doc.title}</h3>
+                          <p className="text-sm text-slate-500 mt-1">
+                            {doc.description}
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
               </CardContent>
               <CardFooter className="pt-4 pb-6 flex-shrink-0">
