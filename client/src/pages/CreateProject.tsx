@@ -68,7 +68,8 @@ enum ProjectStep {
   PROJECT_INFO = 1,
   DOCUMENTS = 2,
   REVIEW = 3,
-  COMPLETE = 4
+  PROCESSING = 4,
+  COMPLETE = 5
 }
 
 export default function CreateProject() {
@@ -115,8 +116,15 @@ export default function CreateProject() {
       // Update onboarding progress
       updateProgressMutation.mutate();
       
-      // Go directly to the validation dashboard instead of showing the completion step
-      navigate("/validation-dashboard");
+      // First show loading screen by setting processing step
+      setCurrentStep(ProjectStep.PROCESSING);
+      
+      // Then navigate to estimate detail after simulated processing
+      setTimeout(() => {
+        // In a real implementation, we would have the estimateId from the response
+        // For now, navigate to validation dashboard which will show the latest estimate
+        navigate("/validation-dashboard");
+      }, 3000);
     },
     onError: (error) => {
       toast({
