@@ -6,6 +6,7 @@ import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/Dashboard";
 import StandardsWizard from "@/pages/StandardsWizard";
 import ValidationDashboard from "@/pages/ValidationDashboard";
+import EstimateDetail from "@/pages/EstimateDetail";
 
 function Router() {
   return (
@@ -13,6 +14,7 @@ function Router() {
       <Route path="/" component={Dashboard} />
       <Route path="/standards-wizard" component={StandardsWizard} />
       <Route path="/validation-dashboard" component={ValidationDashboard} />
+      <Route path="/estimates/:id" component={EstimateDetail} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -21,8 +23,10 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Router />
-      <Toaster />
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
+        <Router />
+        <Toaster />
+      </div>
     </QueryClientProvider>
   );
 }
