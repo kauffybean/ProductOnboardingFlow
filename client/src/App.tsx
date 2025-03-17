@@ -9,6 +9,7 @@ import StandardsWizard from "@/pages/StandardsWizard";
 import ValidationDashboard from "@/pages/ValidationDashboard";
 import EstimateDetail from "@/pages/EstimateDetail";
 import DocumentsUpload from "@/pages/DocumentsUpload";
+import CreateProject from "@/pages/CreateProject";
 import OnboardingSidebar from "@/components/OnboardingSidebar";
 import { useQuery } from "@tanstack/react-query";
 import { type OnboardingProgress } from "@shared/schema";
@@ -66,6 +67,7 @@ function Router() {
             <Route path="/validation-dashboard" component={ValidationDashboard} />
             <Route path="/estimates/:id" component={EstimateDetail} />
             <Route path="/documents-upload" component={DocumentsUpload} />
+            <Route path="/create-project" component={CreateProject} />
             <Route component={NotFound} />
           </Switch>
         </div>
