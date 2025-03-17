@@ -34,64 +34,64 @@ export default function OnboardingSidebar({
   const [, navigate] = useLocation();
   const [expanded, setExpanded] = useState(true);
   
-  // Default onboarding steps with time estimates
+  // Default onboarding steps with time estimates - aligned with dashboard cards
   const steps: OnboardingStep[] = [
     {
       id: 'welcome',
       label: 'Welcome to Assembli',
       path: '/',
       description: 'Get familiar with your estimator dashboard',
-      timeMins: 2,
+      timeMins: 1,
       completed: true, // Always completed as it's the landing page
       active: currentStep === 'welcome',
       skippable: false
     },
     {
       id: 'company_standards',
-      label: 'Set Company Standards',
+      label: '1. Set Company Standards',
       path: '/standards-wizard',
       description: 'Define your estimation rules and preferences',
-      timeMins: 5,
+      timeMins: 2,
       completed: progress?.standardsSetupComplete || false,
       active: currentStep === 'company_standards',
       skippable: true
     },
     {
       id: 'upload_documents',
-      label: 'Upload Project Documents',
+      label: '2. Upload Pricing Information',
       path: '/documents-upload',
-      description: 'Upload schematics and material lists',
-      timeMins: 3,
+      description: 'Add historic pricing data for materials',
+      timeMins: 1,
       completed: progress?.historicPricingUploaded || false,
       active: currentStep === 'upload_documents',
       skippable: false
     },
     {
       id: 'create_estimate',
-      label: 'Create Your First Estimate',
+      label: '3. Create Your First Project',
       path: '/create-estimate',
-      description: 'Generate an estimate from your documents',
-      timeMins: 8,
+      description: 'Start a project and generate an estimate',
+      timeMins: 2,
       completed: progress?.firstEstimateCreated || false,
       active: currentStep === 'create_estimate',
       skippable: false
     },
     {
       id: 'validate_estimate',
-      label: 'Validate & Refine',
+      label: '4. Validate Estimate',
       path: '/validation-dashboard',
-      description: 'Ensure your estimate meets all standards',
-      timeMins: 10,
+      description: 'Review and validate against standards',
+      timeMins: 2,
       completed: progress?.estimateValidated || false,
       active: currentStep === 'validate_estimate',
       skippable: false
     },
     {
       id: 'submit_bid',
-      label: 'Submit Your Bid',
+      label: '5. Submit Your Bid',
       path: '/submit-bid',
       description: 'Finalize and submit your estimate',
-      timeMins: 5,
+      timeMins: 1,
       completed: progress?.firstBidSubmitted || false,
       active: currentStep === 'submit_bid',
       skippable: false

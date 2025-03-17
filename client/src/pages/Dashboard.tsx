@@ -23,7 +23,8 @@ import {
   Plus, 
   Upload,
   CheckCircle,
-  ArrowRight
+  ArrowRight,
+  Clock
 } from "lucide-react";
 import { type OnboardingProgress } from "@shared/schema";
 
@@ -122,167 +123,256 @@ export default function Dashboard() {
           </Card>
         )}
 
-        {/* Onboarding Journey Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        {/* Onboarding Journey Cards with Clear CTAs */}
+        <div className="grid grid-cols-1 gap-8 mb-12">
+          {/* Step 1: Set Standards */}
           <Card 
-            className={`border transition duration-150 shadow-sm hover:shadow cursor-pointer ${progress?.standardsSetupComplete ? 'border-green-300 bg-green-50' : 'border-slate-200 hover:border-primary'}`}
-            onClick={handleStartStandards}
+            className={`border-2 transition duration-150 shadow-sm hover:shadow ${
+              progress?.standardsSetupComplete 
+                ? 'border-green-300 bg-green-50' 
+                : 'border-primary hover:border-primary-600'
+            }`}
           >
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="text-lg font-semibold text-slate-800">Step 1: Set Standards</div>
-                <div className={progress?.standardsSetupComplete ? "text-green-500" : "text-primary"}>
+            <CardContent className="p-8">
+              <div className="flex items-center gap-6">
+                <div className="flex-shrink-0 h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <span className="text-xl font-bold text-primary">1</span>
+                </div>
+                
+                <div className="flex-grow space-y-1">
+                  <h3 className="text-xl font-semibold text-slate-800">Set Company Standards</h3>
+                  <p className="text-slate-600">
+                    Define your estimating standards to improve the accuracy of your bids.
+                  </p>
+                  <div className="flex items-center text-xs text-slate-500 mt-1">
+                    <Clock className="h-3 w-3 mr-1" /> Estimated time: 2 min
+                  </div>
+                </div>
+                
+                <div className="flex-shrink-0 ml-auto">
                   {progress?.standardsSetupComplete ? (
-                    <CheckCircle className="h-5 w-5" />
+                    <div className="flex items-center gap-2 text-green-600">
+                      <CheckCircle className="h-5 w-5" />
+                      <span className="font-medium">Completed</span>
+                    </div>
                   ) : (
-                    <Gauge className="h-5 w-5" />
+                    <Button 
+                      size="lg" 
+                      onClick={handleStartStandards}
+                      className="font-medium"
+                    >
+                      Start Now <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
                   )}
                 </div>
-              </div>
-              <p className="mt-2 text-sm text-slate-600">
-                Define your estimating standards to improve the accuracy of your bids.
-              </p>
-              <div className="mt-4 flex justify-between items-center">
-                <span className="text-xs text-slate-500">2 min</span>
-                {progress?.standardsSetupComplete ? (
-                  <span className="text-xs text-green-600 font-medium">Completed</span>
-                ) : (
-                  <Button size="sm" variant="outline">
-                    {progress?.standardsSetupComplete ? "Review" : "Start"} <ArrowRight className="ml-1 h-3 w-3" />
-                  </Button>
-                )}
               </div>
             </CardContent>
           </Card>
           
+          {/* Step 2: Upload Documents */}
           <Card 
-            className={`border transition duration-150 shadow-sm hover:shadow cursor-pointer ${
-              !progress?.standardsSetupComplete ? 'opacity-60 pointer-events-none' : 
-              progress?.historicPricingUploaded ? 'border-green-300 bg-green-50' : 'border-slate-200 hover:border-primary'
-            }`} 
-            onClick={handleUploadDocuments}
+            className={`border-2 transition duration-150 shadow-sm hover:shadow ${
+              progress?.historicPricingUploaded 
+                ? 'border-green-300 bg-green-50' 
+                : !progress?.standardsSetupComplete 
+                  ? 'border-slate-200 opacity-60' 
+                  : 'border-primary hover:border-primary-600'
+            }`}
           >
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="text-lg font-semibold text-slate-800">Step 2: Upload Documents</div>
-                <div className={progress?.historicPricingUploaded ? "text-green-500" : "text-primary"}>
+            <CardContent className="p-8">
+              <div className="flex items-center gap-6">
+                <div className="flex-shrink-0 h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <span className="text-xl font-bold text-primary">2</span>
+                </div>
+                
+                <div className="flex-grow space-y-1">
+                  <h3 className="text-xl font-semibold text-slate-800">Upload Pricing Information</h3>
+                  <p className="text-slate-600">
+                    Add your historic pricing data and materials information for accurate estimates.
+                  </p>
+                  <div className="flex items-center text-xs text-slate-500 mt-1">
+                    <Clock className="h-3 w-3 mr-1" /> Estimated time: 1 min
+                  </div>
+                </div>
+                
+                <div className="flex-shrink-0 ml-auto">
                   {progress?.historicPricingUploaded ? (
-                    <CheckCircle className="h-5 w-5" />
+                    <div className="flex items-center gap-2 text-green-600">
+                      <CheckCircle className="h-5 w-5" />
+                      <span className="font-medium">Completed</span>
+                    </div>
                   ) : (
-                    <FileText className="h-5 w-5" />
+                    <Button 
+                      size="lg" 
+                      onClick={handleUploadDocuments}
+                      disabled={!progress?.standardsSetupComplete}
+                      className="font-medium"
+                    >
+                      {progress?.standardsSetupComplete ? "Continue" : "Next Step"} <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
                   )}
                 </div>
-              </div>
-              <p className="mt-2 text-sm text-slate-600">
-                Upload schematics, pricing sheets, and material lists for your projects.
-              </p>
-              <div className="mt-4 flex justify-between items-center">
-                <span className="text-xs text-slate-500">1 min</span>
-                {progress?.historicPricingUploaded ? (
-                  <span className="text-xs text-green-600 font-medium">Completed</span>
-                ) : (
-                  <Button size="sm" variant="outline" disabled={!progress?.standardsSetupComplete}>
-                    Start <ArrowRight className="ml-1 h-3 w-3" />
-                  </Button>
-                )}
               </div>
             </CardContent>
           </Card>
           
+          {/* Step 3: Create Estimate */}
           <Card 
-            className={`border transition duration-150 shadow-sm hover:shadow cursor-pointer ${
-              (!progress?.standardsSetupComplete || !progress?.historicPricingUploaded) ? 'opacity-60 pointer-events-none' : 
-              progress?.firstEstimateCreated ? 'border-green-300 bg-green-50' : 'border-slate-200 hover:border-primary'
-            }`} 
-            onClick={() => setShowEstimateCreation(true)}
+            className={`border-2 transition duration-150 shadow-sm hover:shadow ${
+              progress?.firstEstimateCreated 
+                ? 'border-green-300 bg-green-50' 
+                : (!progress?.standardsSetupComplete || !progress?.historicPricingUploaded) 
+                  ? 'border-slate-200 opacity-60' 
+                  : 'border-primary hover:border-primary-600'
+            }`}
           >
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="text-lg font-semibold text-slate-800">Step 3: Create Estimate</div>
-                <div className={progress?.firstEstimateCreated ? "text-green-500" : "text-primary"}>
+            <CardContent className="p-8">
+              <div className="flex items-center gap-6">
+                <div className="flex-shrink-0 h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <span className="text-xl font-bold text-primary">3</span>
+                </div>
+                
+                <div className="flex-grow space-y-1">
+                  <h3 className="text-xl font-semibold text-slate-800">Create Your First Project</h3>
+                  <p className="text-slate-600">
+                    Start your first project with schematics and documents to generate an estimate.
+                  </p>
+                  <div className="flex items-center text-xs text-slate-500 mt-1">
+                    <Clock className="h-3 w-3 mr-1" /> Estimated time: 2 min
+                  </div>
+                </div>
+                
+                <div className="flex-shrink-0 ml-auto">
                   {progress?.firstEstimateCreated ? (
-                    <CheckCircle className="h-5 w-5" />
+                    <div className="flex items-center gap-2 text-green-600">
+                      <CheckCircle className="h-5 w-5" />
+                      <span className="font-medium">Completed</span>
+                    </div>
                   ) : (
-                    <Calculator className="h-5 w-5" />
+                    <Button 
+                      size="lg"
+                      onClick={() => setShowEstimateCreation(true)} 
+                      disabled={!progress?.standardsSetupComplete || !progress?.historicPricingUploaded}
+                      className="font-medium"
+                    >
+                      {progress?.standardsSetupComplete && progress?.historicPricingUploaded ? "Start Project" : "Next Step"} <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
                   )}
                 </div>
               </div>
-              <p className="mt-2 text-sm text-slate-600">
-                Create a new estimate based on your documents and company standards.
-              </p>
-              <div className="mt-4 flex justify-between items-center">
-                <span className="text-xs text-slate-500">2 min</span>
-                {progress?.firstEstimateCreated ? (
-                  <span className="text-xs text-green-600 font-medium">Completed</span>
-                ) : (
+            </CardContent>
+          </Card>
+          
+          {/* Add placeholder cards for the next steps that align with sidebar */}
+          <Card className="border-2 border-slate-200 opacity-60">
+            <CardContent className="p-8">
+              <div className="flex items-center gap-6">
+                <div className="flex-shrink-0 h-12 w-12 rounded-full bg-slate-100 flex items-center justify-center">
+                  <span className="text-xl font-bold text-slate-400">4</span>
+                </div>
+                
+                <div className="flex-grow space-y-1">
+                  <h3 className="text-xl font-semibold text-slate-400">Validate Estimate</h3>
+                  <p className="text-slate-400">
+                    Review and validate your estimate against company standards.
+                  </p>
+                  <div className="flex items-center text-xs text-slate-400 mt-1">
+                    <Clock className="h-3 w-3 mr-1" /> Estimated time: 2 min
+                  </div>
+                </div>
+                
+                <div className="flex-shrink-0 ml-auto">
                   <Button 
-                    size="sm" 
-                    variant="outline" 
-                    disabled={!progress?.standardsSetupComplete || !progress?.historicPricingUploaded}
+                    size="lg" 
+                    disabled
+                    variant="outline"
+                    className="text-slate-400 border-slate-300"
                   >
-                    Start <ArrowRight className="ml-1 h-3 w-3" />
+                    Coming Soon <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
-                )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="border-2 border-slate-200 opacity-60">
+            <CardContent className="p-8">
+              <div className="flex items-center gap-6">
+                <div className="flex-shrink-0 h-12 w-12 rounded-full bg-slate-100 flex items-center justify-center">
+                  <span className="text-xl font-bold text-slate-400">5</span>
+                </div>
+                
+                <div className="flex-grow space-y-1">
+                  <h3 className="text-xl font-semibold text-slate-400">Submit Bid</h3>
+                  <p className="text-slate-400">
+                    Finalize and submit your bid with confidence.
+                  </p>
+                  <div className="flex items-center text-xs text-slate-400 mt-1">
+                    <Clock className="h-3 w-3 mr-1" /> Estimated time: 1 min
+                  </div>
+                </div>
+                
+                <div className="flex-shrink-0 ml-auto">
+                  <Button 
+                    size="lg" 
+                    disabled
+                    variant="outline"
+                    className="text-slate-400 border-slate-300"
+                  >
+                    Coming Soon <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Content Area for Estimates & Documents */}
-        <Tabs defaultValue="estimates" className="w-full">
-          <TabsList className="mb-4">
-            <TabsTrigger value="estimates">Estimates</TabsTrigger>
-            <TabsTrigger value="documents">Documents</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="estimates">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-slate-900">Your Estimates</h2>
+        {/* Show only estimates in progress during onboarding */}
+        {showEstimateCreation && (
+          <Card className="mb-10">
+            <CardHeader>
+              <CardTitle>Create Your First Project</CardTitle>
+              <CardDescription>
+                Upload project schematics and create an estimate based on your company standards
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <EstimateCreation onCreationComplete={handleEstimateCreated} />
+            </CardContent>
+            <CardFooter className="bg-blue-50 border-t border-blue-100">
+              <div className="text-sm text-blue-700">
+                <p>
+                  <strong>Tip:</strong> Your company standards will be automatically applied to optimize accuracy.
+                </p>
+              </div>
+            </CardFooter>
+          </Card>
+        )}
+        
+        {/* Show minimal estimate list during onboarding */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Your Projects</CardTitle>
+              <CardDescription>
+                Track your construction project estimates here
+              </CardDescription>
+            </div>
+            
+            {!showEstimateCreation && (
               <Button 
                 onClick={() => setShowEstimateCreation(true)}
                 disabled={!progress?.standardsSetupComplete || !progress?.historicPricingUploaded}
               >
                 <Plus className="h-4 w-4 mr-2" />
-                New Estimate
+                New Project
               </Button>
-            </div>
-            
-            {showEstimateCreation ? (
-              <Card className="mb-6">
-                <CardHeader>
-                  <CardTitle>Create Your First Estimate</CardTitle>
-                  <CardDescription>
-                    Let's create your first estimate based on your standards and documents
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <EstimateCreation onCreationComplete={handleEstimateCreated} />
-                </CardContent>
-                <CardFooter className="bg-blue-50 border-t border-blue-100">
-                  <div className="text-sm text-blue-700">
-                    <p>
-                      <strong>Tip:</strong> This estimate will be created using your company standards and uploaded documents.
-                    </p>
-                  </div>
-                </CardFooter>
-              </Card>
-            ) : null}
-            
+            )}
+          </CardHeader>
+          <CardContent>
             <EstimateList />
-          </TabsContent>
-          
-          <TabsContent value="documents">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-slate-900">Your Documents</h2>
-              <Button onClick={() => navigate('/documents-upload')}>
-                <Upload className="h-4 w-4 mr-2" />
-                Upload Documents
-              </Button>
-            </div>
-            
-            <DocumentList />
-          </TabsContent>
-        </Tabs>
+          </CardContent>
+        </Card>
       </div>
     );
   }
