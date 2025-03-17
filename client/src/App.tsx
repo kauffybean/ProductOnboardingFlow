@@ -8,7 +8,7 @@ import Dashboard from "@/pages/Dashboard";
 import StandardsWizard from "@/pages/StandardsWizard";
 import ValidationDashboard from "@/pages/ValidationDashboard";
 import EstimateDetail from "@/pages/EstimateDetail";
-// Will create DocumentsUpload page next
+import DocumentsUpload from "@/pages/DocumentsUpload";
 import OnboardingSidebar from "@/components/OnboardingSidebar";
 import { useQuery } from "@tanstack/react-query";
 import { type OnboardingProgress } from "@shared/schema";
@@ -36,7 +36,7 @@ function Router() {
     progress.standardsSetupComplete && 
     progress.historicPricingUploaded && 
     progress.firstEstimateCreated && 
-    progress.firstEstimateCreated && 
+    progress.estimateValidated && 
     progress.firstBidSubmitted;
   
   // Don't show sidebar on estimate detail pages
@@ -65,7 +65,7 @@ function Router() {
             <Route path="/standards-wizard" component={StandardsWizard} />
             <Route path="/validation-dashboard" component={ValidationDashboard} />
             <Route path="/estimates/:id" component={EstimateDetail} />
-            {/* <Route path="/documents-upload" component={DocumentsUpload} /> */}
+            <Route path="/documents-upload" component={DocumentsUpload} />
             <Route component={NotFound} />
           </Switch>
         </div>
