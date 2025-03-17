@@ -77,7 +77,7 @@ export default function DocumentsUpload() {
   const handleSkip = async () => {
     try {
       // Mark this step as skipped but acknowledge it
-      await fetch('/api/onboarding-progress', {
+      await apiRequest('/api/onboarding-progress', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -143,7 +143,7 @@ export default function DocumentsUpload() {
       setShowSuccessMessage(true);
       
       // Update onboarding progress
-      await fetch('/api/onboarding-progress', {
+      await apiRequest('/api/onboarding-progress', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

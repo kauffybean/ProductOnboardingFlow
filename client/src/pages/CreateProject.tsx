@@ -133,6 +133,9 @@ export default function CreateProject() {
     mutationFn: async () => {
       return await apiRequest("/api/onboarding-progress", {
         method: "PATCH",
+        headers: {
+          "Content-Type": "application/json"
+        },
         body: JSON.stringify({ firstEstimateCreated: true }),
       });
     },
