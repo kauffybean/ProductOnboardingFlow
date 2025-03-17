@@ -14,7 +14,7 @@ import StandardsForm from "@/components/StandardsForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Check, ArrowRight, ChevronRight, Pencil, Building, Home, Hammer } from "lucide-react";
+import { Check, ArrowRight, ChevronRight, Pencil, Building, Home, Hammer, RotateCcw } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
