@@ -281,10 +281,21 @@ export default function StandardsWizard() {
     const criticalData = criticalForm.getValues();
     const advancedData = advancedForm.getValues();
     
-    // Combine data from both forms
+    // Get project-specific data based on project type
+    let projectSpecificData = {};
+    if (projectType === "commercial") {
+      projectSpecificData = commercialForm.getValues();
+    } else if (projectType === "residential") {
+      projectSpecificData = residentialForm.getValues();
+    } else if (projectType === "renovation") {
+      projectSpecificData = renovationForm.getValues();
+    }
+    
+    // Combine data from all forms
     const fullData: FullStandards = {
       ...criticalData,
-      ...advancedData
+      ...advancedData,
+      ...projectSpecificData
     };
     
     // Save standards
@@ -304,7 +315,7 @@ export default function StandardsWizard() {
           <div className="mb-8">
             <ProgressIndicator 
               currentStep={currentStep} 
-              totalSteps={4} 
+              totalSteps={5} 
               excludeFromCount={WizardStep.COMPLETE}
             />
           </div>
@@ -416,7 +427,7 @@ export default function StandardsWizard() {
             </Card>
           )}
           
-          {/* Step 3: Advanced Standards */}
+          {/* Step 4: Advanced Standards */}
           {currentStep === WizardStep.ADVANCED_STANDARDS && (
             <Card>
               <CardContent className="p-8">
@@ -525,7 +536,7 @@ export default function StandardsWizard() {
                     </ul>
                   </div>
                   
-                  <div>
+                  <div className="mb-4">
                     <h4 className="font-medium text-slate-700">Optional (Advanced) Standards:</h4>
                     <ul className="mt-2 space-y-2 text-sm">
                       {Object.entries(advancedForm.getValues()).map(([key, value]) => (
@@ -545,6 +556,65 @@ export default function StandardsWizard() {
                       ))}
                     </ul>
                   </div>
+                  
+                  {projectType === "commercial" && (
+                    <div>
+                      <h4 className="font-medium text-slate-700">Commercial-Specific Standards:</h4>
+                      <ul className="mt-2 space-y-2 text-sm">
+                        {Object.entries(commercialForm.getValues()).map(([key, value]) => (
+                          <li className="flex" key={key}>
+                            <span className="text-slate-600 w-1/2">
+                              {key === "commercialFireRating" ? "Fire Rating Requirements" :
+                               key === "commercialAccessibilityStandard" ? "Accessibility Standard" :
+                               key === "commercialFlooringType" ? "Preferred Flooring Type" : key}:
+                            </span>
+                            <span className="font-medium text-slate-800">
+                              {value ? getDisplayText(key, value) : "Not specified"}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  
+                  {projectType === "residential" && (
+                    <div>
+                      <h4 className="font-medium text-slate-700">Residential-Specific Standards:</h4>
+                      <ul className="mt-2 space-y-2 text-sm">
+                        {Object.entries(residentialForm.getValues()).map(([key, value]) => (
+                          <li className="flex" key={key}>
+                            <span className="text-slate-600 w-1/2">
+                              {key === "residentialInsulationRValue" ? "Insulation R-Value" :
+                               key === "residentialWindowType" ? "Window Type" :
+                               key === "residentialFlooringType" ? "Preferred Flooring Type" : key}:
+                            </span>
+                            <span className="font-medium text-slate-800">
+                              {value ? getDisplayText(key, value) : "Not specified"}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  
+                  {projectType === "renovation" && (
+                    <div>
+                      <h4 className="font-medium text-slate-700">Renovation-Specific Standards:</h4>
+                      <ul className="mt-2 space-y-2 text-sm">
+                        {Object.entries(renovationForm.getValues()).map(([key, value]) => (
+                          <li className="flex" key={key}>
+                            <span className="text-slate-600 w-1/2">
+                              {key === "demolitionWasteFactor" ? "Demolition Waste Factor" :
+                               key === "hazardousMaterialHandling" ? "Hazardous Material Handling" : key}:
+                            </span>
+                            <span className="font-medium text-slate-800">
+                              {value ? getDisplayText(key, value) : "Not specified"}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex justify-between pt-4">
