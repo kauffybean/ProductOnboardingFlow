@@ -79,16 +79,18 @@ export default function EstimateDetail() {
     queryKey: ['/api/estimates', estimateId],
     queryFn: async () => {
       if (!estimateId) return null;
-      return apiRequest(`/api/estimates/${estimateId}`);
+      const response = await apiRequest(`/api/estimates/${estimateId}`);
+      return await response.json();
     },
     enabled: !!estimateId,
   });
   
   const validateMutation = useMutation({
     mutationFn: async () => {
-      return await apiRequest(`/api/estimates/${estimateId}/validate`, {
+      const response = await apiRequest(`/api/estimates/${estimateId}/validate`, {
         method: 'POST',
       });
+      return await response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/estimates', estimateId] });
@@ -112,9 +114,10 @@ export default function EstimateDetail() {
   
   const submitMutation = useMutation({
     mutationFn: async () => {
-      return await apiRequest(`/api/estimates/${estimateId}/submit`, {
+      const response = await apiRequest(`/api/estimates/${estimateId}/submit`, {
         method: 'POST',
       });
+      return await response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/estimates', estimateId] });
@@ -156,9 +159,9 @@ export default function EstimateDetail() {
       case 'validating':
         return <Badge variant="secondary">Validating</Badge>;
       case 'validated':
-        return <Badge variant="success">Validated</Badge>;
+        return <Badge variant="outline" className="bg-green-50 text-green-700">Validated</Badge>;
       case 'submitted':
-        return <Badge variant="primary">Submitted</Badge>;
+        return <Badge variant="outline" className="bg-blue-50 text-blue-700">Submitted</Badge>;
       default:
         return <Badge>{status}</Badge>;
     }
