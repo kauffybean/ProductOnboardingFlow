@@ -115,8 +115,8 @@ export default function CreateProject() {
       // Update onboarding progress
       updateProgressMutation.mutate();
       
-      // Move to complete step
-      setCurrentStep(ProjectStep.COMPLETE);
+      // Go directly to the validation dashboard instead of showing the completion step
+      navigate("/validation-dashboard");
     },
     onError: (error) => {
       toast({

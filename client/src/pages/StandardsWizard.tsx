@@ -171,7 +171,13 @@ export default function StandardsWizard() {
   // Save standards mutation
   const saveStandardsMutation = useMutation({
     mutationFn: async (data: FullStandards) => {
-      const response = await apiRequest("POST", "/api/standards", data);
+      const response = await apiRequest("/api/standards", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+      });
       return response.json();
     },
     onSuccess: () => {
