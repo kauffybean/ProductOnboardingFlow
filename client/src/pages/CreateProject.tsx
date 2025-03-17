@@ -28,6 +28,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Progress } from "@/components/ui/progress";
 import {
   Select,
   SelectContent,
@@ -48,7 +49,9 @@ import {
   Building,
   Home,
   FileBarChart,
-  CircleCheck
+  CircleCheck,
+  Loader2,
+  Circle
 } from "lucide-react";
 import { type OnboardingProgress } from "@shared/schema";
 
