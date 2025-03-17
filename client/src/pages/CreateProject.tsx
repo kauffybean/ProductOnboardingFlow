@@ -119,9 +119,11 @@ export default function CreateProject() {
           updatedAt: new Date().toISOString(),
         })
       });
-      return response;
+      // Extract the JSON data from the response
+      const responseData = await response.json();
+      return responseData;
     },
-    onSuccess: (data) => {
+    onSuccess: (data: { id: number; name: string; [key: string]: any }) => {
       toast({
         title: "Project created successfully!",
         description: "Your project has been created.",
@@ -156,13 +158,14 @@ export default function CreateProject() {
   // Mutation for updating onboarding progress
   const updateProgressMutation = useMutation({
     mutationFn: async () => {
-      return await apiRequest("/api/onboarding-progress", {
+      const response = await apiRequest("/api/onboarding-progress", {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({ firstEstimateCreated: true }),
       });
+      return await response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/onboarding-progress"] });
