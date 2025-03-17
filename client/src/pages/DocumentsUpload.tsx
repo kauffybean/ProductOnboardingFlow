@@ -259,7 +259,28 @@ export default function DocumentsUpload() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <DocumentUpload onUploadComplete={handleUploadComplete} />
+              <div className="bg-slate-50 border border-dashed border-slate-200 rounded-lg p-6 mb-6 text-center">
+                <Upload className="h-12 w-12 text-slate-400 mx-auto mb-4" />
+                <h3 className="font-medium text-slate-700 mb-3">Upload Pricing Files</h3>
+                <p className="text-sm text-slate-500 mb-4">
+                  Drag & drop or click to upload receipts, invoices, or price sheets
+                </p>
+                
+                <div className="relative mx-auto max-w-xs">
+                  <Input
+                    type="file"
+                    multiple
+                    className="absolute inset-0 opacity-0 cursor-pointer"
+                    onChange={handleUploadComplete}
+                  />
+                  <Button variant="outline" className="w-full">
+                    Select Files
+                  </Button>
+                </div>
+                <p className="text-xs text-slate-400 mt-4">
+                  Supports PDF, images, CAD files, Word and Excel documents
+                </p>
+              </div>
             </CardContent>
             {showSuccessMessage && (
               <CardFooter className="bg-green-50 border-t border-green-100">
@@ -301,9 +322,9 @@ export default function DocumentsUpload() {
                   </p>
                   <Button
                     onClick={handleContinue}
-                    className="mt-4"
+                    className="mt-4 px-6"
                   >
-                    Continue to Next Step
+                    Continue to Create Your First Project
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </div>
@@ -457,9 +478,9 @@ export default function DocumentsUpload() {
                   </p>
                   <Button
                     onClick={handleContinue}
-                    className="mt-4"
+                    className="mt-4 px-6"
                   >
-                    Continue to Next Step
+                    Continue to Create Your First Project
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </div>
@@ -469,33 +490,36 @@ export default function DocumentsUpload() {
         </>
       )}
       
-      <div className="flex justify-between mt-8">
-        <Button 
-          variant="outline" 
-          onClick={handleBack}
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Standards
-        </Button>
-        
-        <div className="space-x-4">
+      {/* Only showing the footer buttons when not showing any processing screen */}
+      {(!showSuccessMessage && activeTab === 'selection') && (
+        <div className="flex justify-between mt-8">
           <Button 
-            variant="outline"
-            onClick={handleSkip}
+            variant="outline" 
+            onClick={handleBack}
           >
-            Skip for Now
-            <SkipForward className="ml-2 h-4 w-4" />
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Standards
           </Button>
           
-          <Button 
-            onClick={handleContinue}
-            disabled={!progress?.historicPricingUploaded}
-          >
-            Continue to Estimate Creation
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
+          <div className="space-x-4">
+            <Button 
+              variant="outline"
+              onClick={handleSkip}
+            >
+              Skip for Now
+              <SkipForward className="ml-2 h-4 w-4" />
+            </Button>
+            
+            <Button 
+              onClick={handleContinue}
+              disabled={!progress?.historicPricingUploaded}
+            >
+              Continue to Create Your First Project
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
