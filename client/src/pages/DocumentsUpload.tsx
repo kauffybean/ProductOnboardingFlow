@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
 import { Button } from '@/components/ui/button';
 import { 
   Card, 
