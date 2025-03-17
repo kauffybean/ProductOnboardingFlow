@@ -251,6 +251,31 @@ export default function DocumentsUpload() {
             </Card>
           </div>
           
+          {/* Recommended Documents Section */}
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle>Recommended Documents</CardTitle>
+              <CardDescription>
+                For best results, upload the following types of documents
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {recommendedDocuments.map((doc, index) => (
+                  <div key={index} className="flex items-start p-4 bg-slate-50 rounded-lg border border-slate-200">
+                    <div className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0 mr-4">
+                      {doc.icon}
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-medium mb-1">{doc.title}</h4>
+                      <p className="text-xs text-slate-500">{doc.description}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+          
           {/* Skip Option Banner */}
           <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 mb-6">
             <div className="flex items-center justify-between">
@@ -337,7 +362,7 @@ export default function DocumentsUpload() {
             )}
           </Card>
           
-          {showSuccessMessage ? (
+          {showProcessingScreen ? (
             <Card className="mb-8">
               <CardHeader className="bg-blue-50">
                 <CardTitle className="flex items-center">
@@ -381,6 +406,18 @@ export default function DocumentsUpload() {
               <CardContent>
                 <DocumentList />
               </CardContent>
+              {showSuccessMessage && (
+                <CardFooter className="border-t border-slate-200 pt-4 flex justify-center">
+                  <Button 
+                    onClick={handleProcessDocuments}
+                    size="lg"
+                    className="px-8"
+                  >
+                    Process Documents
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </CardFooter>
+              )}
             </Card>
           )}
         </>
@@ -400,100 +437,7 @@ export default function DocumentsUpload() {
             </Button>
           </div>
           
-          {!showSuccessMessage ? (
-            <Card className="mb-8">
-              <CardHeader>
-                <CardTitle>Material Pricing Assistant</CardTitle>
-                <CardDescription>
-                  Our assistant will help you provide pricing information through voice or chat
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="p-0">
-                <div className="border-t border-slate-200 p-6 bg-slate-50">
-                  <div className="flex items-start gap-4 mb-6">
-                    <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                      <MessageSquare className="h-5 w-5 text-blue-600" />
-                    </div>
-                    <div className="bg-white rounded-lg p-4 shadow-sm border border-slate-200 flex-grow">
-                      <p className="text-slate-800">
-                        Hi there! I'm your pricing assistant. I'll help you add material pricing information without uploading documents. Would you prefer to use voice or text chat?
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex justify-end mb-6">
-                    <div className="bg-primary/10 rounded-lg p-4 shadow-sm border border-primary/20 max-w-[80%]">
-                      <p className="text-slate-800">
-                        Let's use text chat for now.
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start gap-4 mb-6">
-                    <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                      <MessageSquare className="h-5 w-5 text-blue-600" />
-                    </div>
-                    <div className="bg-white rounded-lg p-4 shadow-sm border border-slate-200 flex-grow">
-                      <p className="text-slate-800">
-                        Great! Let's get started. What types of materials do you typically use for your construction projects? For example, drywall, lumber, concrete, etc.
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex justify-end mb-6">
-                    <div className="bg-primary/10 rounded-lg p-4 shadow-sm border border-primary/20 max-w-[80%]">
-                      <p className="text-slate-800">
-                        We use drywall, lumber, concrete, insulation, and various flooring materials like vinyl and hardwood.
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start gap-4 mb-6">
-                    <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                      <MessageSquare className="h-5 w-5 text-blue-600" />
-                    </div>
-                    <div className="bg-white rounded-lg p-4 shadow-sm border border-slate-200 flex-grow">
-                      <p className="text-slate-800">
-                        Thanks! What are your typical costs for each of these materials?
-                        <br/><br/>
-                        Let's start with drywall. What's the average cost per sheet or square foot?
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex justify-end mb-6">
-                    <div className="bg-primary/10 rounded-lg p-4 shadow-sm border border-primary/20 max-w-[80%]">
-                      <p className="text-slate-800">
-                        Standard 4x8 drywall sheets cost about $12 per sheet. For lumber, 2x4 studs are around $4.50 each. Concrete is about $125 per cubic yard.
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start gap-4">
-                    <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                      <MessageSquare className="h-5 w-5 text-blue-600" />
-                    </div>
-                    <div className="bg-white rounded-lg p-4 shadow-sm border border-slate-200 flex-grow">
-                      <p className="text-slate-800">
-                        Great information! What about your costs for insulation and flooring materials?
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="p-4 border-t border-slate-200 flex items-center">
-                  <Input
-                    placeholder="Type your response..."
-                    className="flex-grow mr-4"
-                    value="Insulation is about $0.70 per square foot. Vinyl flooring costs $2.50 per sq ft, and hardwood is around $7 per sq ft."
-                  />
-                  <Button onClick={() => setShowSuccessMessage(true)}>
-                    Send
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ) : (
+          {showProcessingScreen ? (
             <Card className="mb-8">
               <CardHeader className="bg-blue-50">
                 <CardTitle className="flex items-center">
@@ -526,6 +470,131 @@ export default function DocumentsUpload() {
                 </div>
               </CardContent>
             </Card>
+          ) : (
+            <>
+              {!showSuccessMessage ? (
+                <Card className="mb-8">
+                  <CardHeader>
+                    <CardTitle>Material Pricing Assistant</CardTitle>
+                    <CardDescription>
+                      Our assistant will help you provide pricing information through voice or chat
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <div className="border-t border-slate-200 p-6 bg-slate-50">
+                      <div className="flex items-start gap-4 mb-6">
+                        <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                          <MessageSquare className="h-5 w-5 text-blue-600" />
+                        </div>
+                        <div className="bg-white rounded-lg p-4 shadow-sm border border-slate-200 flex-grow">
+                          <p className="text-slate-800">
+                            Hi there! I'm your pricing assistant. I'll help you add material pricing information without uploading documents. Would you prefer to use voice or text chat?
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex justify-end mb-6">
+                        <div className="bg-primary/10 rounded-lg p-4 shadow-sm border border-primary/20 max-w-[80%]">
+                          <p className="text-slate-800">
+                            Let's use text chat for now.
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-start gap-4 mb-6">
+                        <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                          <MessageSquare className="h-5 w-5 text-blue-600" />
+                        </div>
+                        <div className="bg-white rounded-lg p-4 shadow-sm border border-slate-200 flex-grow">
+                          <p className="text-slate-800">
+                            Great! Let's get started. What types of materials do you typically use for your construction projects? For example, drywall, lumber, concrete, etc.
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex justify-end mb-6">
+                        <div className="bg-primary/10 rounded-lg p-4 shadow-sm border border-primary/20 max-w-[80%]">
+                          <p className="text-slate-800">
+                            We use drywall, lumber, concrete, insulation, and various flooring materials like vinyl and hardwood.
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-start gap-4 mb-6">
+                        <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                          <MessageSquare className="h-5 w-5 text-blue-600" />
+                        </div>
+                        <div className="bg-white rounded-lg p-4 shadow-sm border border-slate-200 flex-grow">
+                          <p className="text-slate-800">
+                            Thanks! What are your typical costs for each of these materials?
+                            <br/><br/>
+                            Let's start with drywall. What's the average cost per sheet or square foot?
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex justify-end mb-6">
+                        <div className="bg-primary/10 rounded-lg p-4 shadow-sm border border-primary/20 max-w-[80%]">
+                          <p className="text-slate-800">
+                            Standard 4x8 drywall sheets cost about $12 per sheet. For lumber, 2x4 studs are around $4.50 each. Concrete is about $125 per cubic yard.
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-start gap-4">
+                        <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                          <MessageSquare className="h-5 w-5 text-blue-600" />
+                        </div>
+                        <div className="bg-white rounded-lg p-4 shadow-sm border border-slate-200 flex-grow">
+                          <p className="text-slate-800">
+                            Great information! What about your costs for insulation and flooring materials?
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="p-4 border-t border-slate-200 flex items-center">
+                      <Input
+                        placeholder="Type your response..."
+                        className="flex-grow mr-4"
+                        value="Insulation is about $0.70 per square foot. Vinyl flooring costs $2.50 per sq ft, and hardwood is around $7 per sq ft."
+                      />
+                      <Button onClick={() => setShowSuccessMessage(true)}>
+                        Send
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : (
+                <Card className="mb-8">
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
+                      Information Received
+                    </CardTitle>
+                    <CardDescription>
+                      Your pricing information has been recorded
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="py-6">
+                    <div className="max-w-md mx-auto text-center">
+                      <h3 className="text-xl font-semibold mb-4">Ready to Process</h3>
+                      <p className="text-slate-600 mb-6">
+                        We've collected your pricing information. Click below to process this data and create your material price catalog.
+                      </p>
+                      <Button
+                        onClick={handleProcessDocuments}
+                        className="px-8"
+                        size="lg"
+                      >
+                        Process Information
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </>
           )}
         </>
       )}
