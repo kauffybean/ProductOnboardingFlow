@@ -15,7 +15,11 @@ import {
 } from "@shared/schema";
 
 type StandardsFormProps = {
-  form: UseFormReturn<CriticalStandards> | UseFormReturn<AdvancedStandards>;
+  form: UseFormReturn<CriticalStandards> | 
+        UseFormReturn<AdvancedStandards> | 
+        UseFormReturn<CommercialStandards> | 
+        UseFormReturn<ResidentialStandards> | 
+        UseFormReturn<RenovationStandards>;
   onSubmit: (data: any) => void;
   submitText: string;
   submitIcon?: React.ReactNode;
@@ -35,8 +39,13 @@ export default function StandardsForm({
   onSkip,
   skipText = "Skip"
 }: StandardsFormProps) {
-  // Helper function to determine if this is a critical or advanced form
-  const isCriticalForm = 'drywallWasteFactor' in form.getValues();
+  // Helper functions to determine form type
+  const formValues = form.getValues();
+  const isCriticalForm = 'drywallWasteFactor' in formValues;
+  const isAdvancedForm = 'drywallFinishLevel' in formValues;
+  const isCommercialForm = 'commercialFireRating' in formValues;
+  const isResidentialForm = 'residentialInsulationRValue' in formValues;
+  const isRenovationForm = 'demolitionWasteFactor' in formValues;
   
   if (isLoading) {
     return (
@@ -196,7 +205,235 @@ export default function StandardsForm({
           )}
           
           {/* Advanced Standards Fields */}
-          {!isCriticalForm && (
+          {/* Commercial Project Standards */}
+          {isCommercialForm && (
+            <>
+              <FormField
+                control={form.control}
+                name="commercialFireRating"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Fire Rating Requirements</FormLabel>
+                    <Select 
+                      onValueChange={field.onChange} 
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select fire rating" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="1-hour">1-Hour</SelectItem>
+                        <SelectItem value="2-hour">2-Hour</SelectItem>
+                        <SelectItem value="3-hour">3-Hour</SelectItem>
+                        <SelectItem value="4-hour">4-Hour</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="commercialAccessibilityStandard"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Accessibility Standard</FormLabel>
+                    <Select 
+                      onValueChange={field.onChange} 
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select standard" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="ada">ADA</SelectItem>
+                        <SelectItem value="ansi-a117">ANSI A117</SelectItem>
+                        <SelectItem value="ibc">IBC Chapter 11</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="commercialFlooringType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Preferred Flooring Type</FormLabel>
+                    <Select 
+                      onValueChange={field.onChange} 
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select flooring type" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="carpet-tile">Carpet Tile</SelectItem>
+                        <SelectItem value="lvt">Luxury Vinyl Tile</SelectItem>
+                        <SelectItem value="rubber">Rubber</SelectItem>
+                        <SelectItem value="polished-concrete">Polished Concrete</SelectItem>
+                        <SelectItem value="terrazzo">Terrazzo</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </>
+          )}
+          
+          {/* Residential Project Standards */}
+          {isResidentialForm && (
+            <>
+              <FormField
+                control={form.control}
+                name="residentialInsulationRValue"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Insulation R-Value</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Input 
+                          type="number" 
+                          {...field}
+                          onChange={(e) => field.onChange(Number(e.target.value))}
+                          min={0}
+                          max={100}
+                        />
+                        <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                          <span className="text-slate-500 sm:text-sm">R-Value</span>
+                        </div>
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="residentialWindowType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Window Type</FormLabel>
+                    <Select 
+                      onValueChange={field.onChange} 
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select window type" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="single-pane">Single Pane</SelectItem>
+                        <SelectItem value="double-pane">Double Pane</SelectItem>
+                        <SelectItem value="triple-pane">Triple Pane</SelectItem>
+                        <SelectItem value="low-e">Low-E Glass</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="residentialFlooringType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Preferred Flooring Type</FormLabel>
+                    <Select 
+                      onValueChange={field.onChange} 
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select flooring type" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="hardwood">Hardwood</SelectItem>
+                        <SelectItem value="laminate">Laminate</SelectItem>
+                        <SelectItem value="carpet">Carpet</SelectItem>
+                        <SelectItem value="tile">Tile</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </>
+          )}
+          
+          {/* Renovation Project Standards */}
+          {isRenovationForm && (
+            <>
+              <FormField
+                control={form.control}
+                name="demolitionWasteFactor"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Demolition Waste Factor (%)</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Input 
+                          type="number" 
+                          {...field}
+                          onChange={(e) => field.onChange(Number(e.target.value))}
+                          min={0}
+                          max={100}
+                        />
+                        <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                          <span className="text-slate-500 sm:text-sm">%</span>
+                        </div>
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="hazardousMaterialHandling"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Hazardous Material Handling</FormLabel>
+                    <Select 
+                      onValueChange={field.onChange} 
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select handling method" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="containment">Containment</SelectItem>
+                        <SelectItem value="removal">Removal</SelectItem>
+                        <SelectItem value="encapsulation">Encapsulation</SelectItem>
+                        <SelectItem value="abatement">Abatement</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </>
+          )}
+          
+          {/* Advanced Standards */}
+          {isAdvancedForm && (
             <>
               <FormField
                 control={form.control}
