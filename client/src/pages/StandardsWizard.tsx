@@ -231,9 +231,8 @@ export default function StandardsWizard() {
   };
   
   const handleGoToNextOnboarding = () => {
-    // In a real app, this would go to the next onboarding step
-    // For demo, we'll go to the validation dashboard
-    navigate("/validation-dashboard");
+    // Go to the next step in the onboarding flow
+    navigate("/documents-upload");
   };
   
   return (
