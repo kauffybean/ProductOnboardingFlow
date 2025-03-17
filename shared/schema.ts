@@ -75,6 +75,9 @@ export const documents = pgTable("documents", {
   mimeType: text("mime_type").notNull(),
   processed: boolean("processed").notNull().default(false),
   uploadedAt: text("uploaded_at").notNull(), // ISO date string
+  description: text("description"),
+  filename: text("filename"),
+  originalFilename: text("original_filename"),
 });
 
 export const insertDocumentSchema = createInsertSchema(documents)
@@ -184,7 +187,7 @@ export const advancedStandardsSchema = z.object({
 export const documentUploadSchema = z.object({
   name: z.string().min(1, "File name is required"),
   type: z.enum(["schematic", "pricing", "material_list"]),
-  file: z.any(),
+  description: z.string().optional(),
 });
 
 // Form schema for estimate creation
