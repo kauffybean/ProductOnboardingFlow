@@ -10,26 +10,40 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
-import { queryClient } from "@/lib/queryClient";
+import { queryClient, apiRequest } from "@/lib/queryClient";
 
 export default function Header() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   
   // Function to reset the demo
-  const handleResetDemo = () => {
-    // Navigate to the standards wizard to restart the demo
-    navigate('/standards-wizard');
-    
-    // Clear cache and reset app state
-    queryClient.invalidateQueries();
-    
-    // Show a message to the user
-    toast({
-      title: 'Demo Reset',
-      description: 'The demo has been reset. You can start over from the beginning.',
-      variant: 'default',
-    });
+  const handleResetDemo = async () => {
+    try {
+      // Reset all data in the database
+      await apiRequest('/api/reset-demo', {
+        method: 'POST',
+      });
+      
+      // Clear all cache
+      queryClient.clear();
+      
+      // Navigate to the welcome page
+      navigate('/');
+      
+      // Show success message
+      toast({
+        title: 'Demo Reset Complete',
+        description: 'All progress has been cleared. You can start fresh from the beginning.',
+        variant: 'default',
+      });
+    } catch (error) {
+      console.error('Failed to reset demo:', error);
+      toast({
+        title: 'Reset Failed',
+        description: 'Could not reset the demo. Please try again.',
+        variant: 'destructive',
+      });
+    }
   };
   
   return (

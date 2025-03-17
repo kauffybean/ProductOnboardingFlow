@@ -784,6 +784,80 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Reset demo endpoint - used to reset all data for demonstration purposes
+  app.post('/api/reset-demo', async (req, res) => {
+    try {
+      // In a real application, we would check for admin permissions
+      // For demo purposes, we'll allow anyone to reset the demo
+      
+      // Get the userId (for demo purposes it's always 1)
+      const userId = 1;
+      
+      // First, delete any validation issues
+      const estimates = await storage.getEstimates(userId);
+      for (const estimate of estimates) {
+        const issues = await storage.getValidationIssues(estimate.id);
+        for (const issue of issues) {
+          await storage.deleteValidationIssue(issue.id);
+        }
+        
+        // Then delete estimate items
+        const items = await storage.getEstimateItems(estimate.id);
+        for (const item of items) {
+          await storage.deleteEstimateItem(item.id);
+        }
+        
+        // Finally delete the estimate
+        await storage.deleteEstimate(estimate.id);
+      }
+      
+      // Delete documents
+      const documents = await storage.getDocuments(userId);
+      for (const document of documents) {
+        // Delete the file if it exists
+        if (document.filePath) {
+          try {
+            fs.unlinkSync(document.filePath);
+          } catch (fileError) {
+            console.error('Error deleting file:', fileError);
+            // Continue even if file deletion fails
+          }
+        }
+        await storage.deleteDocument(document.id);
+      }
+      
+      // Delete materials
+      const materials = await storage.getMaterials(userId);
+      for (const material of materials) {
+        await storage.deleteMaterial(material.id);
+      }
+      
+      // Reset onboarding progress
+      const progress = await storage.getOnboardingProgress(userId);
+      if (progress) {
+        await storage.updateOnboardingProgress(userId, {
+          standardsSetupComplete: false,
+          historicPricingUploaded: false,
+          firstEstimateCreated: false,
+          estimateValidated: false,
+          firstBidSubmitted: false
+        });
+      }
+      
+      // Reset company standards
+      const standards = await storage.getCompanyStandards(userId);
+      if (standards) {
+        // Delete standards completely by using undefined for all fields
+        await storage.updateCompanyStandards(userId, {});
+      }
+      
+      return res.status(200).json({ message: 'Demo has been reset successfully' });
+    } catch (error) {
+      console.error('Error resetting demo:', error);
+      return res.status(500).json({ message: 'Failed to reset demo' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
