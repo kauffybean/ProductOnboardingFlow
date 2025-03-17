@@ -251,30 +251,7 @@ export default function DocumentsUpload() {
             </Card>
           </div>
           
-          {/* Recommended Documents Section */}
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle>Recommended Documents</CardTitle>
-              <CardDescription>
-                For best results, upload the following types of documents
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {recommendedDocuments.map((doc, index) => (
-                  <div key={index} className="flex items-start p-4 bg-slate-50 rounded-lg border border-slate-200">
-                    <div className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0 mr-4">
-                      {doc.icon}
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-medium mb-1">{doc.title}</h4>
-                      <p className="text-xs text-slate-500">{doc.description}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          {/* No Recommended Documents Section on the first screen */}
           
           {/* Skip Option Banner */}
           <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 mb-6">
@@ -324,6 +301,31 @@ export default function DocumentsUpload() {
               </CardDescription>
             </CardHeader>
             <CardContent>
+              {/* Recommended Documents Section */}
+              <Card className="mb-6 border-slate-200">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base">Recommended Documents</CardTitle>
+                  <CardDescription>
+                    For best results, upload the following types of documents
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {recommendedDocuments.map((doc, index) => (
+                      <div key={index} className="flex items-start p-3 bg-slate-50 rounded-lg border border-slate-200">
+                        <div className="h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0 mr-3">
+                          {doc.icon}
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-medium mb-1">{doc.title}</h4>
+                          <p className="text-xs text-slate-500">{doc.description}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
               <div className="bg-slate-50 border border-dashed border-slate-200 rounded-lg p-6 mb-6 text-center">
                 <Upload className="h-12 w-12 text-slate-400 mx-auto mb-4" />
                 <h3 className="font-medium text-slate-700 mb-3">Upload Pricing Files</h3>
@@ -413,7 +415,7 @@ export default function DocumentsUpload() {
                     size="lg"
                     className="px-8"
                   >
-                    Process Documents
+                    Create Your First Project
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </CardFooter>
@@ -578,16 +580,16 @@ export default function DocumentsUpload() {
                   </CardHeader>
                   <CardContent className="py-6">
                     <div className="max-w-md mx-auto text-center">
-                      <h3 className="text-xl font-semibold mb-4">Ready to Process</h3>
+                      <h3 className="text-xl font-semibold mb-4">Ready to Create Your Project</h3>
                       <p className="text-slate-600 mb-6">
-                        We've collected your pricing information. Click below to process this data and create your material price catalog.
+                        We'll process the information and you'll be able to review it once you create your first project.
                       </p>
                       <Button
                         onClick={handleProcessDocuments}
                         className="px-8"
                         size="lg"
                       >
-                        Process Information
+                        Create Your First Project
                         <ArrowRight className="ml-2 h-4 w-4" />
                       </Button>
                     </div>
