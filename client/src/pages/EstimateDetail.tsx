@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useRoute } from 'wouter';
+import { useRoute, useLocation } from 'wouter';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Table, 
@@ -23,18 +23,38 @@ import {
   ArrowLeft,
   Loader2,
   BarChart3,
-  Plus
+  Plus,
+  InfoIcon,
+  ChevronDown,
+  ChevronRight,
+  HelpCircle,
+  Users,
+  ArrowRight,
+  CircleCheck,
+  Percent,
+  FileSearch,
+  FileQuestion,
+  ClipboardCheck,
+  FileText
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { Link } from 'wouter';
 import { apiRequest } from '@/lib/queryClient';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Separator } from '@/components/ui/separator';
+import { Progress } from '@/components/ui/progress';
 
 export default function EstimateDetail() {
   const [, params] = useRoute('/estimates/:id');
   const estimateId = params?.id ? parseInt(params.id, 10) : 0;
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [location, navigate] = useLocation();
+  
+  // State for the onboarding tour
+  const [showOnboarding, setShowOnboarding] = useState(true);
+  const [onboardingStep, setOnboardingStep] = useState(1);
+  const totalOnboardingSteps = 5;
   
   // Mock data for applied standards until we have a real endpoint
   const mockAppliedStandards = [
@@ -513,6 +533,213 @@ export default function EstimateDetail() {
       <div className="text-sm text-slate-500">
         Created: {format(new Date(estimate.createdAt), 'MMMM d, yyyy')} &middot; Last updated: {format(new Date(estimate.updatedAt), 'MMMM d, yyyy')}
       </div>
+      
+      {/* Onboarding overlay */}
+      {showOnboarding && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full p-0 relative overflow-hidden">
+            <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-6 text-white">
+              <div className="flex justify-between items-start">
+                <div className="flex items-center">
+                  <FileText className="h-7 w-7 mr-3" />
+                  <h2 className="text-xl font-bold">Welcome to your Estimate Dashboard</h2>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  className="text-white hover:bg-white/20 hover:text-white -mt-2 -mr-2"
+                  onClick={() => setShowOnboarding(false)}
+                >
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    className="h-5 w-5" 
+                    fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </Button>
+              </div>
+              <p className="mt-1 max-w-lg">Let's take a quick tour of your newly generated estimate</p>
+              
+              <div className="flex justify-between items-center mt-4">
+                <div className="flex items-center">
+                  <span className="inline-flex items-center justify-center rounded-full h-8 w-8 bg-white text-blue-600 font-semibold mr-2">
+                    {onboardingStep}
+                  </span>
+                  <span>Step {onboardingStep} of {totalOnboardingSteps}</span>
+                </div>
+                <div className="w-32">
+                  <Progress value={(onboardingStep / totalOnboardingSteps) * 100} className="h-2" />
+                </div>
+              </div>
+            </div>
+            
+            <div className="p-6">
+              {onboardingStep === 1 && (
+                <div>
+                  <h3 className="text-xl font-semibold mb-3 flex items-center">
+                    <BarChart3 className="mr-2 h-5 w-5 text-blue-500" />
+                    Overview Dashboard
+                  </h3>
+                  <p className="mb-4">Your estimate has been automatically generated based on the documents you uploaded and your company standards.</p>
+                  
+                  <div className="border rounded-md p-4 mb-4 bg-slate-50">
+                    <p className="text-sm text-slate-700 leading-relaxed">
+                      <strong>Key information:</strong><br/>
+                      • Total cost is calculated based on extracted measurements<br/>
+                      • Applied standard waste factors and pricing formulas<br/>
+                      • Materials are organized by category for easy review<br/>
+                      • Automatic validations identify potential issues for review
+                    </p>
+                  </div>
+                </div>
+              )}
+              
+              {onboardingStep === 2 && (
+                <div>
+                  <h3 className="text-xl font-semibold mb-3 flex items-center">
+                    <Percent className="mr-2 h-5 w-5 text-blue-500" />
+                    Confidence Score
+                  </h3>
+                  <p className="mb-4">Each estimate includes a confidence score showing the accuracy and reliability of the cost calculations.</p>
+                  
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="bg-green-50 border border-green-200 rounded-md p-3 flex-1">
+                      <span className="font-semibold text-green-800 flex items-center">
+                        <CircleCheck className="h-4 w-4 mr-1" />
+                        High Confidence (80%+)
+                      </span>
+                      <p className="text-sm text-green-700 mt-1">Prices and quantities have been verified against multiple data points.</p>
+                    </div>
+                    
+                    <div className="bg-amber-50 border border-amber-200 rounded-md p-3 flex-1">
+                      <span className="font-semibold text-amber-800 flex items-center">
+                        <AlertCircle className="h-4 w-4 mr-1" />
+                        Medium Confidence (50-79%)
+                      </span>
+                      <p className="text-sm text-amber-700 mt-1">Some calculations require verification against industry standards.</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {onboardingStep === 3 && (
+                <div>
+                  <h3 className="text-xl font-semibold mb-3 flex items-center">
+                    <FileSearch className="mr-2 h-5 w-5 text-blue-500" />
+                    Material Categories
+                  </h3>
+                  <p className="mb-4">Materials are automatically organized by categories making it easy to review and adjust quantities.</p>
+                  
+                  <div className="border rounded-md p-4 mb-4 bg-slate-50">
+                    <div className="flex items-center justify-between mb-2 p-2 bg-white rounded border">
+                      <div className="font-semibold">Drywall & Framing</div>
+                      <Badge variant="outline" className="bg-green-50 text-green-700">Approved</Badge>
+                    </div>
+                    <p className="text-sm text-slate-600 mb-3">Materials are nested under each category. Click on a category to see detailed items.</p>
+                    <p className="text-sm text-slate-700">
+                      <strong>Benefits:</strong><br/>
+                      • Organized view helps with quick navigation<br/>
+                      • Subtotals calculated for each category<br/>
+                      • Visual indicators show validation status
+                    </p>
+                  </div>
+                </div>
+              )}
+              
+              {onboardingStep === 4 && (
+                <div>
+                  <h3 className="text-xl font-semibold mb-3 flex items-center">
+                    <FileQuestion className="mr-2 h-5 w-5 text-blue-500" />
+                    Validation Issues
+                  </h3>
+                  <p className="mb-4">The system automatically checks your estimate against industry standards and your company standards.</p>
+                  
+                  <div className="border rounded-md p-4 mb-4 bg-amber-50 border-amber-200">
+                    <h4 className="font-semibold text-amber-800 mb-1">Potential Issues</h4>
+                    <ul className="text-sm text-amber-700 space-y-2">
+                      <li className="flex items-start">
+                        <AlertCircle className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
+                        <span>Drywall pricing appears 15% higher than market average</span>
+                      </li>
+                      <li className="flex items-start">
+                        <AlertCircle className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
+                        <span>Waste factor for carpeting exceeds company standard</span>
+                      </li>
+                    </ul>
+                  </div>
+                  
+                  <p className="text-sm text-slate-600">
+                    All validation issues are listed in the "Validation & Standards" tab for easy review and resolution.
+                  </p>
+                </div>
+              )}
+              
+              {onboardingStep === 5 && (
+                <div>
+                  <h3 className="text-xl font-semibold mb-3 flex items-center">
+                    <ClipboardCheck className="mr-2 h-5 w-5 text-blue-500" />
+                    Applied Standards
+                  </h3>
+                  <p className="mb-4">Your company's standards have been automatically applied to this estimate.</p>
+                  
+                  <div className="border rounded-md p-4 mb-4 bg-blue-50 border-blue-200">
+                    <h4 className="font-semibold text-blue-800 mb-1">Standards Applied</h4>
+                    <ul className="text-sm text-blue-700 space-y-2">
+                      <li className="flex items-start">
+                        <CheckCircle2 className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
+                        <span>Applied waste factor of 15% for drywall materials</span>
+                      </li>
+                      <li className="flex items-start">
+                        <CheckCircle2 className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
+                        <span>Used standard ceiling height of 9 feet for volume calculations</span>
+                      </li>
+                      <li className="flex items-start">
+                        <CheckCircle2 className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
+                        <span>Applied preferred flooring installation method (floating)</span>
+                      </li>
+                    </ul>
+                  </div>
+                  
+                  <p className="text-sm text-slate-600">
+                    You can see all the applied standards in the "Validation & Standards" tab.
+                  </p>
+                </div>
+              )}
+              
+              <div className="flex justify-between mt-6">
+                {onboardingStep > 1 ? (
+                  <Button 
+                    variant="outline"
+                    onClick={() => setOnboardingStep(prev => Math.max(1, prev - 1))}
+                  >
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Previous
+                  </Button>
+                ) : (
+                  <div></div>
+                )}
+                
+                {onboardingStep < totalOnboardingSteps ? (
+                  <Button
+                    onClick={() => setOnboardingStep(prev => Math.min(totalOnboardingSteps, prev + 1))}
+                  >
+                    Next
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={() => setShowOnboarding(false)}
+                    className="bg-green-600 hover:bg-green-700"
+                  >
+                    <CheckCircle2 className="mr-2 h-4 w-4" />
+                    Get Started
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

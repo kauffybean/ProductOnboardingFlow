@@ -119,9 +119,10 @@ export default function CreateProject() {
       // Update onboarding progress
       updateProgressMutation.mutate();
       
-      // After simulated processing, move to the Complete step
+      // After simulated processing, navigate directly to the estimate dashboard
       setTimeout(() => {
-        setCurrentStep(ProjectStep.COMPLETE);
+        // Navigate directly to the estimate detail page instead of showing the Complete step
+        navigate("/estimate-detail/1");
       }, 4000);
     },
     onError: (error) => {
