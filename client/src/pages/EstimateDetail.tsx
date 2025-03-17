@@ -253,31 +253,107 @@ export default function EstimateDetail() {
         </div>
       </div>
       
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg font-medium text-slate-500">Total Cost</CardTitle>
+          <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
+            <CardTitle className="text-base font-medium text-slate-500">Total Cost</CardTitle>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              className="h-4 w-4 text-primary"
+            >
+              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+            </svg>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{formatCurrency(estimate.totalCost)}</div>
+            <div className="text-2xl font-bold">{formatCurrency(estimate.totalCost)}</div>
+            <p className="text-xs text-slate-500 mt-1">
+              {estimate.status === 'validated' ? '✓ Validated' : estimate.status === 'draft' ? 'Draft estimate' : 'Final cost'}
+            </p>
           </CardContent>
         </Card>
         
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg font-medium text-slate-500">Project Type</CardTitle>
+          <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
+            <CardTitle className="text-base font-medium text-slate-500">Project Type</CardTitle>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              className="h-4 w-4 text-primary"
+            >
+              <path d="M3 21h18M3 10h18M3 7h18M3 4h18" />
+              <path d="M4 21V4" />
+              <path d="M20 21V4" />
+            </svg>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold capitalize">{estimate.projectType}</div>
+            <div className="text-2xl font-bold capitalize">{estimate.projectType}</div>
+            <p className="text-xs text-slate-500 mt-1">
+              Construction project type
+            </p>
           </CardContent>
         </Card>
         
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg font-medium text-slate-500">Total Area</CardTitle>
+          <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
+            <CardTitle className="text-base font-medium text-slate-500">Total Area</CardTitle>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              className="h-4 w-4 text-primary"
+            >
+              <rect width="20" height="14" x="2" y="5" rx="2" />
+              <path d="M2 10h20" />
+            </svg>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{estimate.totalArea.toLocaleString()} <span className="text-lg text-slate-500">sq ft</span></div>
+            <div className="text-2xl font-bold">{estimate.totalArea.toLocaleString()} <span className="text-base text-slate-500">sq ft</span></div>
+            <p className="text-xs text-slate-500 mt-1">
+              Total project square footage
+            </p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
+            <CardTitle className="text-base font-medium text-slate-500">Cost per Sq Ft</CardTitle>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              className="h-4 w-4 text-primary"
+            >
+              <path d="M20.2 7.8l-7.7 7.7-4-4-5.7 5.7" />
+              <path d="M15 7h6v6" />
+            </svg>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {formatCurrency(estimate.totalCost / estimate.totalArea)}
+              <span className="text-base text-slate-500"> / sq ft</span>
+            </div>
+            <p className="text-xs text-slate-500 mt-1">
+              {estimate.confidenceScore >= 80 ? '✓ Within market range' : 'Calculated unit cost'}
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -308,6 +384,7 @@ export default function EstimateDetail() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Material</TableHead>
+                      <TableHead>Category</TableHead>
                       <TableHead>Quantity</TableHead>
                       <TableHead>Unit</TableHead>
                       <TableHead>Unit Price</TableHead>
@@ -318,17 +395,43 @@ export default function EstimateDetail() {
                     {items.map(item => (
                       <TableRow key={item.id}>
                         <TableCell className="font-medium">{item.materialName}</TableCell>
-                        <TableCell>{item.quantity.toLocaleString()}</TableCell>
+                        <TableCell>
+                          {item.category && (
+                            <Badge variant="outline" className="bg-slate-50">
+                              {item.category}
+                            </Badge>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <div className="font-medium">{item.quantity.toLocaleString()}</div>
+                          {item.wasteFactor && (
+                            <div className="text-xs text-slate-500">
+                              Includes {item.wasteFactor}% waste factor
+                            </div>
+                          )}
+                        </TableCell>
                         <TableCell>{item.unit}</TableCell>
-                        <TableCell>{formatCurrency(item.unitPrice)}</TableCell>
-                        <TableCell className="text-right">{formatCurrency(item.totalPrice)}</TableCell>
+                        <TableCell>
+                          <div className="font-medium">{formatCurrency(item.unitPrice)}</div>
+                          {item.priceSource && (
+                            <div className="text-xs text-slate-500">
+                              From {item.priceSource}
+                            </div>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="font-medium">{formatCurrency(item.totalPrice)}</div>
+                          <div className="text-xs text-slate-500">
+                            {((item.totalPrice / estimate.totalCost) * 100).toFixed(1)}% of total
+                          </div>
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
                   <tfoot>
                     <tr>
-                      <td colSpan={4} className="px-4 py-2 text-right font-medium">Total:</td>
-                      <td className="px-4 py-2 text-right font-medium">{formatCurrency(estimate.totalCost)}</td>
+                      <td colSpan={5} className="px-4 py-3 text-right font-semibold">Total Cost:</td>
+                      <td className="px-4 py-3 text-right font-semibold text-lg">{formatCurrency(estimate.totalCost)}</td>
                     </tr>
                   </tfoot>
                 </Table>

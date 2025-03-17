@@ -186,20 +186,31 @@ export default function ValidationPanel({
           
           {confidenceScore !== null && (
             <div className="text-right">
-              <div className="text-sm text-slate-500 mb-1">Confidence Score</div>
-              <div className="flex items-center gap-2">
-                <span className="text-xl font-bold">
+              <div className="text-sm text-slate-500 mb-1">Estimate Confidence</div>
+              <div className="flex items-center gap-3">
+                <span className={`text-xl font-bold ${
+                  confidenceScore >= 90 ? 'text-green-600' : 
+                  confidenceScore >= 80 ? 'text-green-500' :
+                  confidenceScore >= 70 ? 'text-amber-500' : 'text-red-500'
+                }`}>
                   {confidenceScore}%
                 </span>
-                <div className="w-24 h-3 bg-slate-200 rounded-full overflow-hidden">
-                  <div 
-                    className={`h-full ${
-                      confidenceScore >= 90 ? 'bg-green-500' : 
-                      confidenceScore >= 80 ? 'bg-green-400' :
-                      confidenceScore >= 70 ? 'bg-amber-400' : 'bg-red-500'
-                    }`}
-                    style={{ width: `${confidenceScore}%` }}
-                  />
+                <div className="flex flex-col gap-1">
+                  <div className="w-32 h-4 bg-slate-100 rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full ${
+                        confidenceScore >= 90 ? 'bg-green-500' : 
+                        confidenceScore >= 80 ? 'bg-green-400' :
+                        confidenceScore >= 70 ? 'bg-amber-400' : 'bg-red-400'
+                      }`}
+                      style={{ width: `${confidenceScore}%` }}
+                    />
+                  </div>
+                  <div className="text-xs text-slate-500 text-right">
+                    {confidenceScore >= 90 ? 'High Confidence' : 
+                     confidenceScore >= 80 ? 'Good Confidence' :
+                     confidenceScore >= 70 ? 'Moderate Confidence' : 'Low Confidence'}
+                  </div>
                 </div>
               </div>
             </div>
