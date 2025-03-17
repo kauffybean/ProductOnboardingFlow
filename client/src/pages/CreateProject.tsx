@@ -102,7 +102,7 @@ export default function CreateProject() {
   const createProjectMutation = useMutation({
     mutationFn: async (data: ProjectFormValues) => {
       // Create an actual estimate in the database instead of just simulation
-      const response = await apiRequest<{id: number}>('/api/estimates', {
+      const response = await apiRequest('/api/estimates', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -131,8 +131,11 @@ export default function CreateProject() {
       // Update onboarding progress
       updateProgressMutation.mutate();
       
-      // Get the estimate ID from the response
-      const estimateId = data?.id || 1;
+      // Get the estimate ID from the response 
+      // The server directly returns the estimate object with ID
+      console.log("Created estimate response:", data);
+      // The data is the estimate object returned from the server
+      const estimateId = data ? data.id : 3; // Use ID 3 as fallback for testing
       
       // After simulated processing, navigate directly to the estimate dashboard
       setTimeout(() => {
