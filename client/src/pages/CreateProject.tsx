@@ -122,7 +122,7 @@ export default function CreateProject() {
       // After simulated processing, navigate directly to the estimate dashboard
       setTimeout(() => {
         // Navigate directly to the estimate detail page instead of showing the Complete step
-        navigate("/estimate-detail/1");
+        navigate("/estimates/1");
       }, 4000);
     },
     onError: (error) => {
