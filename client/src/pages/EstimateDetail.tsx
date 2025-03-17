@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRoute } from 'wouter';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -383,55 +383,103 @@ export default function EstimateDetail() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Material</TableHead>
-                      <TableHead>Category</TableHead>
+                      <TableHead>Material/Description</TableHead>
                       <TableHead>Quantity</TableHead>
                       <TableHead>Unit</TableHead>
                       <TableHead>Unit Price</TableHead>
                       <TableHead className="text-right">Total</TableHead>
+                      <TableHead className="text-right">Status</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {items.map(item => (
-                      <TableRow key={item.id}>
-                        <TableCell className="font-medium">{item.materialName}</TableCell>
-                        <TableCell>
-                          {item.category && (
-                            <Badge variant="outline" className="bg-slate-50">
-                              {item.category}
-                            </Badge>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <div className="font-medium">{item.quantity.toLocaleString()}</div>
-                          {item.wasteFactor && (
-                            <div className="text-xs text-slate-500">
-                              Includes {item.wasteFactor}% waste factor
-                            </div>
-                          )}
-                        </TableCell>
-                        <TableCell>{item.unit}</TableCell>
-                        <TableCell>
-                          <div className="font-medium">{formatCurrency(item.unitPrice)}</div>
-                          {item.priceSource && (
-                            <div className="text-xs text-slate-500">
-                              From {item.priceSource}
-                            </div>
-                          )}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="font-medium">{formatCurrency(item.totalPrice)}</div>
-                          <div className="text-xs text-slate-500">
-                            {((item.totalPrice / estimate.totalCost) * 100).toFixed(1)}% of total
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    {/* Group items by category */}
+                    {Array.from(new Set(items.map(item => item.category))).map(category => {
+                      const categoryItems = items.filter(item => item.category === category);
+                      const categoryTotal = categoryItems.reduce((sum, item) => sum + item.totalPrice, 0);
+                      
+                      return (
+                        <React.Fragment key={category}>
+                          {/* Category row */}
+                          <TableRow className="bg-slate-50">
+                            <TableCell colSpan={4} className="font-semibold">
+                              {category}
+                            </TableCell>
+                            <TableCell className="text-right font-semibold">
+                              {formatCurrency(categoryTotal)}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              {/* Status indicator based on validation */}
+                              {issues.some(issue => 
+                                issue.type === 'pricing_anomaly' && 
+                                categoryItems.some(item => issue.description.includes(item.materialName))
+                              ) ? (
+                                <Badge variant="outline" className="bg-amber-50 text-amber-700">
+                                  Pending
+                                </Badge>
+                              ) : (
+                                <Badge variant="outline" className="bg-green-50 text-green-700">
+                                  Approved
+                                </Badge>
+                              )}
+                            </TableCell>
+                          </TableRow>
+                          
+                          {/* Item rows */}
+                          {categoryItems.map(item => (
+                            <TableRow key={item.id} className="border-b-0">
+                              <TableCell className="pl-8">
+                                <div className="font-medium">{item.materialName}</div>
+                                {item.description && (
+                                  <div className="text-xs text-slate-500">{item.description}</div>
+                                )}
+                              </TableCell>
+                              <TableCell>
+                                <div className="font-medium">{item.quantity.toLocaleString()}</div>
+                                {item.wasteFactor && (
+                                  <div className="text-xs text-slate-500">
+                                    Includes {item.wasteFactor}% waste factor
+                                  </div>
+                                )}
+                              </TableCell>
+                              <TableCell>{item.unit}</TableCell>
+                              <TableCell>
+                                <div className="font-medium">{formatCurrency(item.unitPrice)}</div>
+                                {item.priceSource && (
+                                  <div className="text-xs text-slate-500">
+                                    From {item.priceSource}
+                                  </div>
+                                )}
+                              </TableCell>
+                              <TableCell className="text-right">
+                                <div className="font-medium">{formatCurrency(item.totalPrice)}</div>
+                                <div className="text-xs text-slate-500">
+                                  {((item.totalPrice / estimate.totalCost) * 100).toFixed(1)}% of total
+                                </div>
+                              </TableCell>
+                              <TableCell className="text-right">
+                                {issues.some(issue => 
+                                  issue.description.includes(item.materialName)
+                                ) ? (
+                                  <Badge variant="outline" className="bg-amber-50 text-amber-700">
+                                    Review
+                                  </Badge>
+                                ) : (
+                                  <Badge variant="outline" className="bg-green-50 text-green-700">
+                                    ✓
+                                  </Badge>
+                                )}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </React.Fragment>
+                      );
+                    })}
                   </TableBody>
                   <tfoot>
                     <tr>
-                      <td colSpan={5} className="px-4 py-3 text-right font-semibold">Total Cost:</td>
+                      <td colSpan={4} className="px-4 py-3 text-right font-semibold">Total Estimate:</td>
                       <td className="px-4 py-3 text-right font-semibold text-lg">{formatCurrency(estimate.totalCost)}</td>
+                      <td></td>
                     </tr>
                   </tfoot>
                 </Table>
