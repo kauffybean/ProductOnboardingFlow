@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -34,7 +35,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CheckCircle, ArrowLeft, ArrowRight, Upload, AlertCircle, Clock } from "lucide-react";
+import { 
+  CheckCircle, 
+  ArrowLeft, 
+  ArrowRight, 
+  Upload, 
+  AlertCircle, 
+  Clock, 
+  LayoutList, 
+  FileText, 
+  ClipboardEdit,
+  Building,
+  Home,
+  FileBarChart,
+  CircleCheck
+} from "lucide-react";
 import { type OnboardingProgress } from "@shared/schema";
 
 // Schema for project creation
@@ -49,18 +64,21 @@ const projectSchema = z.object({
 
 type ProjectFormValues = z.infer<typeof projectSchema>;
 
-// Schema for document upload
-const documentSchema = z.object({
-  name: z.string().min(1, { message: "Document name is required" }),
-  type: z.string().min(1, { message: "Document type is required" }),
-  description: z.string().optional(),
-});
+// Enum for project creation steps
+enum ProjectStep {
+  PROJECT_INFO = 1,
+  DOCUMENTS = 2,
+  REVIEW = 3,
+  COMPLETE = 4
+}
 
 export default function CreateProject() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
+  const [currentStep, setCurrentStep] = useState<ProjectStep>(ProjectStep.PROJECT_INFO);
   const [uploadedDocuments, setUploadedDocuments] = useState<Array<{ name: string; type: string; size: number }>>([]);
-  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [projectData, setProjectData] = useState<ProjectFormValues | null>(null);
+  const [processingComplete, setProcessingComplete] = useState(false);
   
   // Form for project details
   const form = useForm<ProjectFormValues>({
@@ -81,11 +99,13 @@ export default function CreateProject() {
   // Mutation for creating project
   const createProjectMutation = useMutation({
     mutationFn: async (data: ProjectFormValues) => {
-      const response = await apiRequest("/api/estimates", {
-        method: "POST",
-        body: JSON.stringify(data),
+      // Simulate API call for prototype
+      // In a real implementation, this would be an actual API call
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve({ id: 1, ...data });
+        }, 1000);
       });
-      return response;
     },
     onSuccess: (data) => {
       toast({
@@ -97,13 +117,8 @@ export default function CreateProject() {
       // Update onboarding progress
       updateProgressMutation.mutate();
       
-      // Show success message
-      setShowSuccessMessage(true);
-      
-      // Navigate to estimate detail after a short delay
-      setTimeout(() => {
-        navigate(`/estimates/${data.id}`);
-      }, 1500);
+      // Move to complete step
+      setCurrentStep(ProjectStep.COMPLETE);
     },
     onError: (error) => {
       toast({
@@ -152,34 +167,86 @@ export default function CreateProject() {
     });
   };
   
-  // Handle form submission
-  const onSubmit = (data: ProjectFormValues) => {
-    createProjectMutation.mutate(data);
+  // Handle project info form submission
+  const handleProjectInfoSubmit = (data: ProjectFormValues) => {
+    setProjectData(data);
+    setCurrentStep(ProjectStep.DOCUMENTS);
+  };
+  
+  // Handle documents step completion
+  const handleDocumentsSubmit = () => {
+    setCurrentStep(ProjectStep.REVIEW);
+    
+    // Simulate document processing
+    setTimeout(() => {
+      setProcessingComplete(true);
+    }, 2000);
+  };
+  
+  // Handle review step completion
+  const handleReviewSubmit = () => {
+    if (projectData) {
+      createProjectMutation.mutate(projectData);
+    } else {
+      toast({
+        title: "Missing project information",
+        description: "Please go back and complete the project information form.",
+        variant: "destructive",
+      });
+    }
   };
   
   // Handle back button
   const handleBack = () => {
-    navigate("/documents-upload");
+    if (currentStep === ProjectStep.PROJECT_INFO) {
+      navigate("/documents-upload");
+    } else {
+      setCurrentStep(currentStep - 1);
+    }
   };
   
-  return (
-    <div className="max-w-5xl mx-auto px-6">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold">Create Your First Project</h1>
-          <p className="text-slate-500 mt-2">
-            Enter project details and upload relevant documents to start your estimate
-          </p>
-        </div>
-        
-        <div className="flex items-center gap-3 text-sm text-slate-500">
-          <Clock className="h-4 w-4" /> 
-          <span>Estimated time: 5 minutes</span>
+  // Handle finish
+  const handleFinish = () => {
+    navigate("/");
+  };
+  
+  const renderStepIndicator = () => {
+    return (
+      <div className="flex items-center justify-center mb-8">
+        <div className="flex items-center">
+          <div className={`flex flex-col items-center ${currentStep >= ProjectStep.PROJECT_INFO ? 'text-primary' : 'text-slate-400'}`}>
+            <div className={`w-10 h-10 rounded-full ${currentStep >= ProjectStep.PROJECT_INFO ? 'bg-primary text-white' : 'bg-slate-200 text-slate-500'} flex items-center justify-center font-semibold`}>
+              1
+            </div>
+            <span className="text-xs mt-1">Project Info</span>
+          </div>
+          
+          <div className={`w-16 h-0.5 ${currentStep >= ProjectStep.DOCUMENTS ? 'bg-primary' : 'bg-slate-200'}`}></div>
+          
+          <div className={`flex flex-col items-center ${currentStep >= ProjectStep.DOCUMENTS ? 'text-primary' : 'text-slate-400'}`}>
+            <div className={`w-10 h-10 rounded-full ${currentStep >= ProjectStep.DOCUMENTS ? 'bg-primary text-white' : 'bg-slate-200 text-slate-500'} flex items-center justify-center font-semibold`}>
+              2
+            </div>
+            <span className="text-xs mt-1">Documents</span>
+          </div>
+          
+          <div className={`w-16 h-0.5 ${currentStep >= ProjectStep.REVIEW ? 'bg-primary' : 'bg-slate-200'}`}></div>
+          
+          <div className={`flex flex-col items-center ${currentStep >= ProjectStep.REVIEW ? 'text-primary' : 'text-slate-400'}`}>
+            <div className={`w-10 h-10 rounded-full ${currentStep >= ProjectStep.REVIEW ? 'bg-primary text-white' : 'bg-slate-200 text-slate-500'} flex items-center justify-center font-semibold`}>
+              3
+            </div>
+            <span className="text-xs mt-1">Review</span>
+          </div>
         </div>
       </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <Card className="md:col-span-2">
+    );
+  };
+  
+  const renderProjectInfoStep = () => {
+    return (
+      <>
+        <Card className="mb-8">
           <CardHeader>
             <CardTitle>Project Details</CardTitle>
             <CardDescription>
@@ -188,7 +255,7 @@ export default function CreateProject() {
           </CardHeader>
           <CardContent>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <form onSubmit={form.handleSubmit(handleProjectInfoSubmit)} className="space-y-6">
                 <FormField
                   control={form.control}
                   name="name"
@@ -220,9 +287,24 @@ export default function CreateProject() {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="commercial">Commercial</SelectItem>
-                            <SelectItem value="residential">Residential</SelectItem>
-                            <SelectItem value="renovation">Renovation</SelectItem>
+                            <SelectItem value="commercial">
+                              <div className="flex items-center">
+                                <Building className="h-4 w-4 mr-2" />
+                                Commercial
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="residential">
+                              <div className="flex items-center">
+                                <Home className="h-4 w-4 mr-2" />
+                                Residential
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="renovation">
+                              <div className="flex items-center">
+                                <ClipboardEdit className="h-4 w-4 mr-2" />
+                                Renovation
+                              </div>
+                            </SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -263,66 +345,69 @@ export default function CreateProject() {
                   )}
                 />
                 
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={createProjectMutation.isPending}
-                >
-                  {createProjectMutation.isPending ? "Creating Project..." : "Create Project & Continue"}
-                </Button>
+                <div className="flex justify-between pt-6">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={handleBack}
+                  >
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back
+                  </Button>
+                  
+                  <Button type="submit">
+                    Continue
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
               </form>
             </Form>
           </CardContent>
-          {showSuccessMessage && (
-            <CardFooter className="bg-green-50 border-t border-green-100">
-              <div className="flex items-start gap-2">
-                <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
-                <div>
-                  <h4 className="font-medium text-green-800">Project created successfully!</h4>
-                  <p className="text-sm text-green-700">
-                    Your project is now ready for estimation. You'll be redirected shortly.
-                  </p>
-                </div>
-              </div>
-            </CardFooter>
-          )}
         </Card>
-        
-        <Card>
+      </>
+    );
+  };
+  
+  const renderDocumentsStep = () => {
+    return (
+      <>
+        <Card className="mb-8">
           <CardHeader>
             <CardTitle>Project Documents</CardTitle>
             <CardDescription>
-              Upload relevant project documents
+              Upload relevant documents for your project
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="bg-slate-50 border border-dashed border-slate-200 rounded-lg p-6 text-center">
-              <Upload className="h-10 w-10 text-slate-400 mx-auto mb-4" />
-              <h3 className="font-medium text-slate-700 mb-2">Upload Project Files</h3>
-              <p className="text-sm text-slate-500 mb-4">
-                Drag & drop or click to upload RFPs, plans, or specifications
-              </p>
-              
-              <div className="relative">
-                <Input
-                  type="file"
-                  multiple
-                  className="absolute inset-0 opacity-0 cursor-pointer"
-                  onChange={handleFileUpload}
-                />
-                <Button variant="outline" className="w-full">
-                  Select Files
-                </Button>
+          <CardContent>
+            <div className="mb-6">
+              <div className="bg-slate-50 border border-dashed border-slate-200 rounded-lg p-6 text-center">
+                <Upload className="h-10 w-10 text-slate-400 mx-auto mb-4" />
+                <h3 className="font-medium text-slate-700 mb-2">Upload Project Files</h3>
+                <p className="text-sm text-slate-500 mb-4">
+                  Drag & drop or click to upload RFPs, plans, or specifications
+                </p>
+                
+                <div className="relative">
+                  <Input
+                    type="file"
+                    multiple
+                    className="absolute inset-0 opacity-0 cursor-pointer"
+                    onChange={handleFileUpload}
+                  />
+                  <Button variant="outline" className="w-full max-w-sm mx-auto">
+                    Select Files
+                  </Button>
+                </div>
               </div>
             </div>
             
-            <div className="space-y-3">
+            <div className="space-y-3 mb-6">
               <div className="text-sm font-medium text-slate-500">Recommended Documents:</div>
               
               <div className="rounded-md border border-slate-200 p-3">
                 <div className="flex gap-3 items-start">
-                  <div className="h-8 w-8 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
-                    <AlertCircle className="h-4 w-4 text-amber-600" />
+                  <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                    <FileBarChart className="h-4 w-4 text-blue-600" />
                   </div>
                   <div>
                     <h3 className="font-medium text-slate-900">Request for Proposal (RFP)</h3>
@@ -335,8 +420,8 @@ export default function CreateProject() {
               
               <div className="rounded-md border border-slate-200 p-3">
                 <div className="flex gap-3 items-start">
-                  <div className="h-8 w-8 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
-                    <AlertCircle className="h-4 w-4 text-amber-600" />
+                  <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                    <FileText className="h-4 w-4 text-green-600" />
                   </div>
                   <div>
                     <h3 className="font-medium text-slate-900">Blueprints/Schematics</h3>
@@ -347,68 +432,308 @@ export default function CreateProject() {
                 </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
-      </div>
-      
-      {/* Uploaded Documents Section */}
-      {uploadedDocuments.length > 0 && (
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle>Uploaded Documents</CardTitle>
-            <CardDescription>
-              These documents will be associated with your project
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="divide-y">
-              {uploadedDocuments.map((doc, index) => (
-                <div key={index} className="py-3 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
-                      <Upload className="h-4 w-4 text-blue-600" />
+            
+            {/* Uploaded Documents */}
+            {uploadedDocuments.length > 0 && (
+              <div className="border rounded-md p-4 mb-6">
+                <h3 className="font-medium mb-3">Uploaded Files ({uploadedDocuments.length})</h3>
+                <div className="divide-y">
+                  {uploadedDocuments.map((doc, index) => (
+                    <div key={index} className="py-3 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
+                          <FileText className="h-4 w-4 text-blue-600" />
+                        </div>
+                        <div>
+                          <p className="font-medium">{doc.name}</p>
+                          <p className="text-sm text-slate-500">
+                            {(doc.size / 1024).toFixed(0)} KB
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setUploadedDocuments(uploadedDocuments.filter((_, i) => i !== index));
+                        }}
+                      >
+                        Remove
+                      </Button>
                     </div>
-                    <div>
-                      <p className="font-medium">{doc.name}</p>
-                      <p className="text-sm text-slate-500">
-                        {(doc.size / 1024).toFixed(0)} KB
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setUploadedDocuments(uploadedDocuments.filter((_, i) => i !== index));
-                    }}
-                  >
-                    Remove
-                  </Button>
+                  ))}
                 </div>
-              ))}
+              </div>
+            )}
+            
+            <div className="flex justify-between pt-6">
+              <Button 
+                variant="outline" 
+                onClick={handleBack}
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to Project Info
+              </Button>
+              
+              <Button 
+                onClick={handleDocumentsSubmit}
+              >
+                Continue to Review
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
             </div>
           </CardContent>
         </Card>
-      )}
-      
-      <div className="flex justify-between mt-8">
-        <Button 
-          variant="outline" 
-          onClick={handleBack}
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Pricing Information
-        </Button>
+      </>
+    );
+  };
+  
+  const renderReviewStep = () => {
+    return (
+      <>
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>Review Project Information</CardTitle>
+            <CardDescription>
+              Review the extracted information from your documents
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {!processingComplete ? (
+              <div className="py-10 flex flex-col items-center justify-center">
+                <div className="mb-6 relative">
+                  <div className="w-24 h-24 rounded-full bg-blue-100 flex items-center justify-center mx-auto">
+                    <FileText className="h-10 w-10 text-blue-600" />
+                  </div>
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-24 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Processing Your Documents</h3>
+                <p className="text-slate-600 text-center max-w-md mb-8">
+                  We're analyzing your uploaded documents to extract key project information. This will help ensure your estimate is accurate.
+                </p>
+              </div>
+            ) : (
+              <div>
+                <div className="bg-green-50 border border-green-100 rounded-md p-4 mb-6 flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 mr-3 flex-shrink-0" />
+                  <div>
+                    <h3 className="font-medium text-green-800">Document Processing Complete</h3>
+                    <p className="text-sm text-green-700">
+                      We've extracted the following information from your documents. Please review and confirm.
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="mb-6">
+                  <h3 className="font-medium text-lg mb-3">Project Details</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-3">
+                      <div>
+                        <div className="text-sm text-slate-500">Project Name</div>
+                        <div className="font-medium text-slate-900">{projectData?.name || "Untitled Project"}</div>
+                      </div>
+                      
+                      <div>
+                        <div className="text-sm text-slate-500">Project Type</div>
+                        <div className="font-medium text-slate-900 capitalize">{projectData?.projectType || "Commercial"}</div>
+                      </div>
+                      
+                      <div>
+                        <div className="text-sm text-slate-500">Notes</div>
+                        <div className="font-medium text-slate-900">{projectData?.notes || "No notes provided"}</div>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <div>
+                        <div className="text-sm text-slate-500">Uploaded Documents</div>
+                        <div className="font-medium text-slate-900">{uploadedDocuments.length} documents</div>
+                      </div>
+                      
+                      <div>
+                        <div className="text-sm text-slate-500">Key Specifications</div>
+                        <ul className="text-sm text-slate-900 list-disc list-inside">
+                          <li>Total Area: 3,200 sqft</li>
+                          <li>Estimated Duration: 6 months</li>
+                          <li>Required Completion: Oct 2025</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="mb-6">
+                  <h3 className="font-medium text-lg mb-3">Extracted Requirements</h3>
+                  <div className="space-y-4">
+                    <div className="p-4 border rounded-md">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="font-medium">Material Requirements</h4>
+                        <Badge>High Priority</Badge>
+                      </div>
+                      <ul className="text-sm text-slate-600 list-disc list-inside">
+                        <li>Premium-grade drywall required for all interior walls</li>
+                        <li>Eco-friendly insulation materials required</li>
+                        <li>LEED-certified flooring materials only</li>
+                      </ul>
+                    </div>
+                    
+                    <div className="p-4 border rounded-md">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="font-medium">Special Considerations</h4>
+                        <Badge variant="outline">Medium Priority</Badge>
+                      </div>
+                      <ul className="text-sm text-slate-600 list-disc list-inside">
+                        <li>Work hours restricted to 8am-5pm on weekdays</li>
+                        <li>Noise restrictions apply during certain hours</li>
+                        <li>Existing structure must be preserved where possible</li>
+                      </ul>
+                    </div>
+                    
+                    <div className="p-4 border rounded-md">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="font-medium">Client Preferences</h4>
+                        <Badge variant="secondary">Information</Badge>
+                      </div>
+                      <ul className="text-sm text-slate-600 list-disc list-inside">
+                        <li>Client prefers neutral color palette throughout</li>
+                        <li>Energy-efficient lighting systems requested</li>
+                        <li>Sustainable materials preferred where possible</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex justify-between pt-4">
+                  <Button 
+                    variant="outline" 
+                    onClick={handleBack}
+                  >
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back to Documents
+                  </Button>
+                  
+                  <Button 
+                    onClick={handleReviewSubmit}
+                    disabled={createProjectMutation.isPending}
+                  >
+                    {createProjectMutation.isPending ? "Creating Project..." : "Create Project & Continue"}
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </>
+    );
+  };
+  
+  const renderCompleteStep = () => {
+    return (
+      <>
+        <Card className="mb-8">
+          <CardHeader className="bg-green-50 border-b border-green-100">
+            <div className="flex items-center">
+              <div className="mr-4">
+                <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+                  <CircleCheck className="h-6 w-6 text-green-600" />
+                </div>
+              </div>
+              <div>
+                <CardTitle>Project Created Successfully!</CardTitle>
+                <CardDescription className="text-green-700">
+                  Your project is ready for estimation
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <div className="mb-6">
+              <h3 className="font-medium text-lg mb-4">Project Summary</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-4">
+                  <div>
+                    <div className="text-sm text-slate-500 mb-1">Project Name</div>
+                    <div className="font-medium text-lg">{projectData?.name || "Untitled Project"}</div>
+                  </div>
+                  
+                  <div>
+                    <div className="text-sm text-slate-500 mb-1">Project Type</div>
+                    <div className="flex items-center">
+                      {projectData?.projectType === "commercial" && <Building className="h-4 w-4 mr-2 text-blue-600" />}
+                      {projectData?.projectType === "residential" && <Home className="h-4 w-4 mr-2 text-green-600" />}
+                      {projectData?.projectType === "renovation" && <ClipboardEdit className="h-4 w-4 mr-2 text-amber-600" />}
+                      <span className="font-medium capitalize">{projectData?.projectType || "Commercial"}</span>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <div className="text-sm text-slate-500 mb-1">Documents Uploaded</div>
+                    <div className="font-medium">{uploadedDocuments.length} documents</div>
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  <div>
+                    <div className="text-sm text-slate-500 mb-1">Next Steps</div>
+                    <ul className="text-sm space-y-3">
+                      <li className="flex items-start">
+                        <CheckCircle className="h-5 w-5 text-green-500 mr-2 flex-shrink-0" />
+                        <span>Project created and ready for estimation</span>
+                      </li>
+                      <li className="flex items-start">
+                        <div className="h-5 w-5 rounded-full border-2 border-slate-300 mr-2 flex-shrink-0" />
+                        <span>Complete quantity takeoff using automatic measurement tools</span>
+                      </li>
+                      <li className="flex items-start">
+                        <div className="h-5 w-5 rounded-full border-2 border-slate-300 mr-2 flex-shrink-0" />
+                        <span>Review and validate estimate calculations</span>
+                      </li>
+                      <li className="flex items-start">
+                        <div className="h-5 w-5 rounded-full border-2 border-slate-300 mr-2 flex-shrink-0" />
+                        <span>Generate final project estimate and proposal</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex justify-center pt-6">
+              <Button onClick={handleFinish} className="px-8">
+                Go to Dashboard
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </>
+    );
+  };
+  
+  return (
+    <div className="max-w-5xl mx-auto px-6">
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-3xl font-bold">Create Your First Project</h1>
+          <p className="text-slate-500 mt-2">
+            Enter project details and upload relevant documents to start your estimate
+          </p>
+        </div>
         
-        <Button 
-          onClick={form.handleSubmit(onSubmit)}
-          disabled={createProjectMutation.isPending}
-        >
-          Create Project & Continue
-          <ArrowRight className="ml-2 h-4 w-4" />
-        </Button>
+        <div className="flex items-center gap-3 text-sm text-slate-500">
+          <Clock className="h-4 w-4" /> 
+          <span>Estimated time: 5 minutes</span>
+        </div>
       </div>
+      
+      {currentStep !== ProjectStep.COMPLETE && renderStepIndicator()}
+      
+      {currentStep === ProjectStep.PROJECT_INFO && renderProjectInfoStep()}
+      {currentStep === ProjectStep.DOCUMENTS && renderDocumentsStep()}
+      {currentStep === ProjectStep.REVIEW && renderReviewStep()}
+      {currentStep === ProjectStep.COMPLETE && renderCompleteStep()}
     </div>
   );
 }
