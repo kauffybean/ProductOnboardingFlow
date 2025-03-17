@@ -102,7 +102,7 @@ export default function CreateProject() {
   const createProjectMutation = useMutation({
     mutationFn: async (data: ProjectFormValues) => {
       // Create an actual estimate in the database instead of just simulation
-      return await apiRequest('/api/estimates', {
+      const response = await apiRequest<{id: number}>('/api/estimates', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -119,6 +119,7 @@ export default function CreateProject() {
           updatedAt: new Date().toISOString(),
         })
       });
+      return response;
     },
     onSuccess: (data) => {
       toast({
