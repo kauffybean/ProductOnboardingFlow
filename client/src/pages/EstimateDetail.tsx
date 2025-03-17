@@ -35,7 +35,22 @@ import {
   FileSearch,
   FileQuestion,
   ClipboardCheck,
-  FileText
+  FileText,
+  Edit,
+  Check,
+  X,
+  Download,
+  FileUp,
+  ExternalLink,
+  Clipboard,
+  Sparkles,
+  ChevronsUpDown,
+  Calculator,
+  CalendarClock,
+  History,
+  Maximize2,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { Link } from 'wouter';
@@ -43,6 +58,14 @@ import { apiRequest } from '@/lib/queryClient';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function EstimateDetail() {
   const [, params] = useRoute('/estimates/:id');
@@ -55,6 +78,23 @@ export default function EstimateDetail() {
   const [showOnboarding, setShowOnboarding] = useState(true);
   const [onboardingStep, setOnboardingStep] = useState(1);
   const totalOnboardingSteps = 5;
+
+  // State for editable items
+  const [editingItemId, setEditingItemId] = useState<number | null>(null);
+  const [editedQuantity, setEditedQuantity] = useState<string | null>(null);
+  const [editedUnitPrice, setEditedUnitPrice] = useState<string | null>(null);
+  const [editingStandard, setEditingStandard] = useState<boolean>(false);
+  const [selectedStandard, setSelectedStandard] = useState<string | null>(null);
+  
+  // State for item details panel
+  const [selectedItem, setSelectedItem] = useState<any | null>(null);
+  const [showDetailsPanel, setShowDetailsPanel] = useState<boolean>(false);
+  
+  // State for review modal
+  const [showReviewModal, setShowReviewModal] = useState<boolean>(false);
+  
+  // State for tracking reviewed items
+  const [reviewedItems, setReviewedItems] = useState<number[]>([]);
   
   // Mock data for applied standards until we have a real endpoint
   const mockAppliedStandards = [
@@ -152,6 +192,16 @@ export default function EstimateDetail() {
   const items = data?.items || [];
   const issues = data?.issues || [];
   
+  // Initialize confidence score from data or start at 75
+  const [confidenceScore, setConfidenceScore] = useState<number>(75);
+  
+  // Update confidence score when estimate changes
+  useEffect(() => {
+    if (estimate) {
+      setConfidenceScore(estimate.confidenceScore || 75);
+    }
+  }, [estimate]);
+  
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'draft':
@@ -188,6 +238,72 @@ export default function EstimateDetail() {
       currency: 'USD',
       minimumFractionDigits: 2,
     }).format(amount);
+  };
+  
+  // Handle item editing
+  const handleEditItem = (item: any) => {
+    setEditingItemId(item.id);
+    setEditedQuantity(item.quantity.toString());
+    setEditedUnitPrice(item.unitPrice.toString());
+  };
+  
+  const handleSaveItem = (item: any) => {
+    // In a real app, this would make an API call
+    toast({
+      title: "Item Updated",
+      description: `Updated ${item.materialName} successfully`,
+    });
+    
+    setEditingItemId(null);
+    setEditedQuantity(null);
+    setEditedUnitPrice(null);
+    
+    // Update confidence score when an item is reviewed
+    if (!reviewedItems.includes(item.id)) {
+      setReviewedItems([...reviewedItems, item.id]);
+      const newScore = Math.min(95, confidenceScore + Math.floor(Math.random() * 3) + 1);
+      setConfidenceScore(newScore);
+      
+      toast({
+        title: "Confidence Score Updated",
+        description: `Confidence score increased to ${newScore}%`,
+      });
+    }
+  };
+  
+  const handleCancelEdit = () => {
+    setEditingItemId(null);
+    setEditedQuantity(null);
+    setEditedUnitPrice(null);
+  };
+  
+  // Handle item details panel
+  const showItemDetails = (item: any) => {
+    setSelectedItem(item);
+    setShowDetailsPanel(true);
+  };
+  
+  // Get confidence score color
+  const getConfidenceScoreColor = (score: number) => {
+    if (score >= 90) return "text-green-500";
+    if (score >= 80) return "text-emerald-500";
+    if (score >= 70) return "text-blue-500";
+    if (score >= 60) return "text-amber-500";
+    return "text-red-500";
+  };
+  
+  // Handle export to PDF
+  const handleExportToPdf = () => {
+    toast({
+      title: "Exporting PDF",
+      description: "Your estimate is being exported to PDF format",
+    });
+    // In a real app, this would trigger a download
+  };
+  
+  // Handle review estimate
+  const handleReviewEstimate = () => {
+    setShowReviewModal(true);
   };
   
   if (isLoading) {
@@ -276,6 +392,100 @@ export default function EstimateDetail() {
         </div>
       </div>
       
+      {/* Prominent Confidence Score Card */}
+      <Card className={`mb-6 ${confidenceScore >= 95 ? 'bg-green-50' : confidenceScore >= 85 ? 'bg-emerald-50' : confidenceScore >= 75 ? 'bg-blue-50' : confidenceScore >= 65 ? 'bg-amber-50' : 'bg-red-50'}`}>
+        <CardContent className="p-6">
+          <div className="flex flex-col md:flex-row items-center justify-between">
+            <div className="flex items-center mb-4 md:mb-0">
+              <div className="mr-6">
+                <div className="relative w-24 h-24">
+                  <svg viewBox="0 0 100 100" className="w-full h-full">
+                    <circle
+                      cx="50"
+                      cy="50"
+                      r="45"
+                      fill="none"
+                      stroke="#e2e8f0"
+                      strokeWidth="10"
+                    />
+                    <circle
+                      cx="50"
+                      cy="50"
+                      r="45"
+                      fill="none"
+                      stroke={
+                        confidenceScore >= 95 ? '#10b981' : 
+                        confidenceScore >= 85 ? '#059669' : 
+                        confidenceScore >= 75 ? '#3b82f6' : 
+                        confidenceScore >= 65 ? '#f59e0b' : 
+                        '#ef4444'
+                      }
+                      strokeWidth="10"
+                      strokeDasharray={`${confidenceScore * 2.83}, 283`}
+                      strokeLinecap="round"
+                      transform="rotate(-90 50 50)"
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className={`text-3xl font-bold ${getConfidenceScoreColor(confidenceScore)}`}>
+                      {confidenceScore}%
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <h3 className="text-xl font-bold mb-1">Estimate Confidence Score</h3>
+                <p className="text-sm text-slate-600 max-w-md">
+                  {confidenceScore >= 95 
+                    ? 'Perfect! Your estimate is ready for review and submission.' 
+                    : confidenceScore >= 85 
+                    ? 'Great! Your estimate is in good shape with a few minor areas to check.' 
+                    : confidenceScore >= 75 
+                    ? 'Good progress. Review highlighted items to improve confidence.' 
+                    : confidenceScore >= 65 
+                    ? 'Several items need attention before this estimate is ready.' 
+                    : 'Multiple issues need to be addressed for this estimate to be valid.'}
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex flex-col items-end">
+              <span className="text-sm font-medium mb-2">Target: &gt;95% confidence</span>
+              <div className="space-y-2">
+                {confidenceScore >= 95 ? (
+                  <Button onClick={handleReviewEstimate} className="w-full md:w-auto">
+                    <CheckCircle2 className="mr-2 h-4 w-4" />
+                    Review Final Estimate
+                  </Button>
+                ) : (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div>
+                          <Button onClick={handleReviewEstimate} variant="outline" className="w-full md:w-auto" disabled>
+                            <CheckCircle2 className="mr-2 h-4 w-4" />
+                            Review Final Estimate
+                          </Button>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Achieve 95% confidence to proceed</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
+                {confidenceScore < 95 && (
+                  <Button variant="ghost" className="text-xs w-full md:w-auto">
+                    <InfoIcon className="mr-2 h-3 w-3" />
+                    How to Improve Score
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
@@ -449,27 +659,182 @@ export default function EstimateDetail() {
                           
                           {/* Item rows */}
                           {categoryItems.map(item => (
-                            <TableRow key={item.id} className="border-b-0">
+                            <TableRow 
+                              key={item.id} 
+                              className={`border-b-0 ${issues.some(issue => issue.description.includes(item.materialName)) ? 'bg-amber-50/30' : ''}`}
+                            >
                               <TableCell className="pl-8">
-                                <div className="font-medium">{item.materialName}</div>
+                                <div className="font-medium flex items-center">
+                                  {item.materialName}
+                                  <Sheet>
+                                    <SheetTrigger asChild>
+                                      <Button variant="ghost" size="icon" className="h-6 w-6 ml-2" onClick={() => showItemDetails(item)}>
+                                        <InfoIcon className="h-4 w-4 text-slate-400" />
+                                      </Button>
+                                    </SheetTrigger>
+                                    <SheetContent className="w-[400px] sm:w-[540px]">
+                                      <SheetHeader>
+                                        <SheetTitle>Material Details: {item.materialName}</SheetTitle>
+                                        <SheetDescription>
+                                          Detailed information and calculations for this material
+                                        </SheetDescription>
+                                      </SheetHeader>
+                                      <div className="py-6">
+                                        <div className="space-y-6">
+                                          <div>
+                                            <h3 className="text-sm font-medium mb-2">Description</h3>
+                                            <p className="text-sm text-slate-600">{item.description || 'No description provided'}</p>
+                                          </div>
+                                          
+                                          <Separator />
+                                          
+                                          <div>
+                                            <h3 className="text-sm font-medium mb-3">Source Information</h3>
+                                            <div className="bg-slate-50 p-3 rounded-md mb-4">
+                                              <div className="flex items-center mb-2">
+                                                <FileSearch className="h-4 w-4 text-blue-600 mr-2" />
+                                                <span className="text-sm font-medium">RFP Source</span>
+                                              </div>
+                                              <p className="text-sm text-slate-600">Page 14, Section 3.2: Materials Requirements</p>
+                                              <div className="mt-2 text-sm italic border-l-2 border-blue-200 pl-3 text-slate-600">
+                                                "All drywall must be 5/8" fire-rated gypsum board with a minimum of {item.quantity} units required for the project."
+                                              </div>
+                                            </div>
+                                          </div>
+                                          
+                                          <Separator />
+                                          
+                                          <div>
+                                            <h3 className="text-sm font-medium mb-3">Calculations</h3>
+                                            <div className="space-y-3 text-sm">
+                                              <div className="flex justify-between bg-slate-50 p-2 rounded">
+                                                <span>Base Quantity (RFP):</span>
+                                                <span className="font-medium">{Math.round(item.quantity * 100 / (100 + (item.wasteFactor || 0))).toLocaleString()} {item.unit}</span>
+                                              </div>
+                                              <div className="flex justify-between bg-blue-50 p-2 rounded">
+                                                <span>Waste Factor:</span>
+                                                <span className="font-medium">{item.wasteFactor || 0}%</span>
+                                              </div>
+                                              <div className="flex justify-between bg-green-50 p-2 rounded">
+                                                <span>Final Quantity:</span>
+                                                <span className="font-medium">{item.quantity.toLocaleString()} {item.unit}</span>
+                                              </div>
+                                              <div className="flex justify-between bg-slate-50 p-2 rounded">
+                                                <span>Unit Price:</span>
+                                                <span className="font-medium">{formatCurrency(item.unitPrice)}</span>
+                                              </div>
+                                              <div className="flex justify-between bg-green-50 p-2 rounded">
+                                                <span>Total Cost:</span>
+                                                <span className="font-medium">{formatCurrency(item.totalPrice)}</span>
+                                              </div>
+                                            </div>
+                                          </div>
+                                          
+                                          <Separator />
+                                          
+                                          <div>
+                                            <h3 className="text-sm font-medium mb-3">Applied Standards</h3>
+                                            {item.wasteFactor ? (
+                                              <div className="flex items-start space-x-3 bg-blue-50 p-3 rounded">
+                                                <Sparkles className="h-5 w-5 text-blue-500 mt-0.5" />
+                                                <div>
+                                                  <p className="text-sm font-medium">Standard Applied: {item.category} Waste Factor</p>
+                                                  <p className="text-sm text-slate-600">Company standard {item.wasteFactor}% waste factor applied to this material</p>
+                                                </div>
+                                              </div>
+                                            ) : (
+                                              <p className="text-sm text-slate-500">No standards applied to this item</p>
+                                            )}
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </SheetContent>
+                                  </Sheet>
+                                </div>
                                 {item.description && (
                                   <div className="text-xs text-slate-500">{item.description}</div>
                                 )}
                               </TableCell>
                               <TableCell>
-                                <div className="font-medium">{item.quantity.toLocaleString()}</div>
-                                {item.wasteFactor && (
-                                  <div className="text-xs text-slate-500">
-                                    Includes {item.wasteFactor}% waste factor
+                                {editingItemId === item.id ? (
+                                  <div className="space-y-1">
+                                    <Input 
+                                      value={editedQuantity || ""}
+                                      onChange={(e) => setEditedQuantity(e.target.value)}
+                                      className="w-24 h-8 text-sm"
+                                    />
+                                    <div className="flex">
+                                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleSaveItem(item)}>
+                                        <Check className="h-3 w-3 text-green-600" />
+                                      </Button>
+                                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleCancelEdit}>
+                                        <X className="h-3 w-3 text-red-600" />
+                                      </Button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div className="group cursor-pointer" onClick={() => handleEditItem(item)}>
+                                    <div className="font-medium flex items-center">
+                                      {item.quantity.toLocaleString()}
+                                      <Edit className="h-3.5 w-3.5 ml-2 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    </div>
+                                    {item.wasteFactor && (
+                                      <Popover>
+                                        <PopoverTrigger asChild>
+                                          <div className="text-xs text-slate-500 flex items-center cursor-help hover:text-blue-600">
+                                            <span>Includes {item.wasteFactor}% waste factor</span>
+                                            <InfoIcon className="ml-1 h-3 w-3" />
+                                          </div>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-80">
+                                          <div className="space-y-2">
+                                            <h4 className="font-medium text-sm">Standard Applied: Waste Factor</h4>
+                                            <p className="text-xs text-slate-600">
+                                              A {item.wasteFactor}% waste factor has been applied based on company standards for {item.category}.
+                                              This accounts for cutting waste, damaged materials, and safety margin.
+                                            </p>
+                                            <div className="text-xs pt-2 space-y-1">
+                                              <div className="flex justify-between">
+                                                <span className="text-slate-500">Base quantity (RFP):</span>
+                                                <span className="font-medium">{Math.round(item.quantity * 100 / (100 + item.wasteFactor)).toLocaleString()}</span>
+                                              </div>
+                                              <div className="flex justify-between">
+                                                <span className="text-slate-500">Waste factor ({item.wasteFactor}%):</span>
+                                                <span className="font-medium">{Math.round(item.quantity - (item.quantity * 100 / (100 + item.wasteFactor))).toLocaleString()}</span>
+                                              </div>
+                                              <div className="flex justify-between pt-1 border-t border-slate-100">
+                                                <span className="font-medium">Final quantity:</span>
+                                                <span className="font-medium">{item.quantity.toLocaleString()}</span>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </PopoverContent>
+                                      </Popover>
+                                    )}
                                   </div>
                                 )}
                               </TableCell>
                               <TableCell>{item.unit}</TableCell>
                               <TableCell>
-                                <div className="font-medium">{formatCurrency(item.unitPrice)}</div>
-                                {item.priceSource && (
-                                  <div className="text-xs text-slate-500">
-                                    From {item.priceSource}
+                                {editingItemId === item.id ? (
+                                  <div className="space-y-1">
+                                    <Input 
+                                      value={editedUnitPrice || ""}
+                                      onChange={(e) => setEditedUnitPrice(e.target.value)}
+                                      className="w-24 h-8 text-sm"
+                                    />
+                                  </div>
+                                ) : (
+                                  <div className="group cursor-pointer" onClick={() => handleEditItem(item)}>
+                                    <div className="font-medium flex items-center">
+                                      {formatCurrency(item.unitPrice)}
+                                      <Edit className="h-3.5 w-3.5 ml-2 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    </div>
+                                    {item.priceSource && (
+                                      <div className="text-xs text-slate-500">
+                                        From {item.priceSource}
+                                      </div>
+                                    )}
                                   </div>
                                 )}
                               </TableCell>
@@ -483,9 +848,20 @@ export default function EstimateDetail() {
                                 {issues.some(issue => 
                                   issue.description.includes(item.materialName)
                                 ) ? (
-                                  <Badge variant="outline" className="bg-amber-50 text-amber-700">
-                                    Review
-                                  </Badge>
+                                  <div className="space-y-1">
+                                    <Badge variant="outline" className="bg-amber-50 text-amber-700">
+                                      Review
+                                    </Badge>
+                                    <Button 
+                                      size="sm" 
+                                      variant="ghost" 
+                                      className="text-xs h-6 px-2"
+                                      onClick={() => handleEditItem(item)}
+                                    >
+                                      <Edit className="h-3 w-3 mr-1" />
+                                      Edit
+                                    </Button>
+                                  </div>
                                 ) : (
                                   <Badge variant="outline" className="bg-green-50 text-green-700">
                                     ✓
@@ -536,6 +912,168 @@ export default function EstimateDetail() {
       <div className="text-sm text-slate-500">
         Created: {format(new Date(estimate.createdAt), 'MMMM d, yyyy')} &middot; Last updated: {format(new Date(estimate.updatedAt), 'MMMM d, yyyy')}
       </div>
+      
+      {/* Review Estimate Modal */}
+      <Dialog open={showReviewModal} onOpenChange={setShowReviewModal}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Review Final Estimate</DialogTitle>
+            <DialogDescription>
+              Review your estimate before exporting as PDF for submission.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-4">
+            <div className="p-6 mb-4 rounded-lg border border-green-100 bg-green-50">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center">
+                  <div className="mr-4 bg-white p-2 rounded-full">
+                    <CircleCheck className="h-8 w-8 text-green-600" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-bold text-green-800">Estimate Ready for Submission</h2>
+                    <p className="text-sm text-green-700">All items have been reviewed and the estimate is ready for export</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-3xl font-bold text-green-700">{confidenceScore}%</div>
+                  <div className="text-sm text-green-600">Confidence Score</div>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <div className="text-green-700 font-medium">Project</div>
+                  <div className="font-bold text-green-900">{estimate.name}</div>
+                </div>
+                <div>
+                  <div className="text-green-700 font-medium">Total Estimate</div>
+                  <div className="font-bold text-green-900">{formatCurrency(estimate.totalCost)}</div>
+                </div>
+                <div>
+                  <div className="text-green-700 font-medium">Project Type</div>
+                  <div className="font-bold text-green-900 capitalize">{estimate.projectType}</div>
+                </div>
+                <div>
+                  <div className="text-green-700 font-medium">Cost per Sq Ft</div>
+                  <div className="font-bold text-green-900">{formatCurrency(estimate.totalCost / estimate.totalArea)}</div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="mb-6">
+              <h3 className="text-base font-medium mb-2">Applied Company Standards</h3>
+              <div className="space-y-2">
+                {mockAppliedStandards.map(standard => (
+                  <div key={standard.id} className="flex items-start p-3 rounded-md border border-blue-100 bg-blue-50">
+                    <Sparkles className="h-5 w-5 text-blue-500 mt-0.5 mr-3" />
+                    <div>
+                      <div className="font-medium text-blue-700">{standard.source}</div>
+                      <div className="text-sm text-blue-600">{standard.description}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <div className="space-y-3">
+              <h3 className="text-base font-medium">Summary by Category</h3>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Category</TableHead>
+                    <TableHead className="text-right">Cost</TableHead>
+                    <TableHead className="text-right">% of Total</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {Array.from(new Set(items.map(item => item.category))).map(category => {
+                    const categoryItems = items.filter(item => item.category === category);
+                    const categoryTotal = categoryItems.reduce((sum, item) => sum + item.totalPrice, 0);
+                    const percentage = (categoryTotal / estimate.totalCost) * 100;
+                    
+                    return (
+                      <TableRow key={category}>
+                        <TableCell className="font-medium">{category}</TableCell>
+                        <TableCell className="text-right">{formatCurrency(categoryTotal)}</TableCell>
+                        <TableCell className="text-right">{percentage.toFixed(1)}%</TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+                <tfoot>
+                  <tr>
+                    <td className="px-4 py-2 font-bold">Total</td>
+                    <td className="px-4 py-2 text-right font-bold">{formatCurrency(estimate.totalCost)}</td>
+                    <td className="px-4 py-2 text-right font-bold">100%</td>
+                  </tr>
+                </tfoot>
+              </Table>
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowReviewModal(false)}>
+              <X className="mr-2 h-4 w-4" />
+              Close
+            </Button>
+            <Button onClick={handleExportToPdf}>
+              <Download className="mr-2 h-4 w-4" />
+              Export to PDF
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Details Panel */}
+      <Sheet open={showDetailsPanel} onOpenChange={setShowDetailsPanel}>
+        <SheetContent className="w-full sm:max-w-md">
+          {selectedItem && (
+            <>
+              <SheetHeader>
+                <SheetTitle>Item Details: {selectedItem.materialName}</SheetTitle>
+                <SheetDescription>
+                  View detailed information about this material
+                </SheetDescription>
+              </SheetHeader>
+              
+              <div className="py-6 space-y-6">
+                <div>
+                  <h3 className="text-sm font-medium mb-2">Description</h3>
+                  <p className="text-sm">{selectedItem.description || 'No description provided'}</p>
+                </div>
+                
+                <Separator />
+                
+                <div>
+                  <h3 className="text-sm font-medium mb-2">Pricing Information</h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-sm text-slate-500">Unit Price:</span>
+                      <span className="text-sm font-medium">{formatCurrency(selectedItem.unitPrice)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-slate-500">Quantity:</span>
+                      <span className="text-sm font-medium">{selectedItem.quantity.toLocaleString()} {selectedItem.unit}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-slate-500">Total:</span>
+                      <span className="text-sm font-medium">{formatCurrency(selectedItem.totalPrice)}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="absolute bottom-6 right-6">
+                <Button variant="default" onClick={() => handleEditItem(selectedItem)}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit Item
+                </Button>
+              </div>
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
       
       {/* Onboarding overlay */}
       {showOnboarding && (
