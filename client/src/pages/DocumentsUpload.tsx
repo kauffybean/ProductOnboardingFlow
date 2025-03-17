@@ -119,10 +119,29 @@ export default function DocumentsUpload() {
     });
   };
   
-  const handleUploadComplete = async () => {
-    setShowSuccessMessage(true);
+  const handleUploadComplete = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    
+    // Create form data for upload
+    const formData = new FormData();
+    for (let i = 0; i < files.length; i++) {
+      formData.append('files', files[i]);
+      formData.append('types', 'pricing');
+      formData.append('names', files[i].name);
+    }
     
     try {
+      // Display toast notification
+      toast({
+        title: 'Documents added',
+        description: `${files.length} document(s) added for upload`,
+        variant: 'default',
+      });
+      
+      // Set success message
+      setShowSuccessMessage(true);
+      
       // Update onboarding progress
       await fetch('/api/onboarding-progress', {
         method: 'PATCH',
@@ -135,13 +154,15 @@ export default function DocumentsUpload() {
       // Refetch progress
       refetchProgress();
       
-      toast({
-        title: 'Documents uploaded successfully',
-        description: 'Your documents are ready for processing',
-        variant: 'default',
-      });
+      // Reset the input field
+      e.target.value = '';
     } catch (error) {
-      console.error('Failed to update progress:', error);
+      console.error('Failed to upload documents:', error);
+      toast({
+        title: 'Error',
+        description: `Failed to upload documents: ${error}`,
+        variant: 'destructive',
+      });
     }
   };
   
@@ -349,20 +370,19 @@ export default function DocumentsUpload() {
                 </p>
               </div>
             </CardContent>
-            {showSuccessMessage && (
-              <CardFooter className="bg-green-50 border-t border-green-100">
-                <div className="flex items-start gap-2">
-                  <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
-                  <div>
-                    <h4 className="font-medium text-green-800">Documents uploaded successfully!</h4>
-                    <p className="text-sm text-green-700">
-                      Your documents are now ready to be used for creating estimates.
-                    </p>
-                  </div>
-                </div>
-              </CardFooter>
-            )}
           </Card>
+          
+          {showSuccessMessage && (
+            <div className="bg-green-50 border border-green-100 rounded-lg p-4 mb-6 flex items-start gap-2">
+              <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+              <div>
+                <h4 className="font-medium text-green-800">Documents uploaded successfully!</h4>
+                <p className="text-sm text-green-700">
+                  Your documents are now ready to be used for creating estimates.
+                </p>
+              </div>
+            </div>
+          )}
           
           {showProcessingScreen ? (
             <Card className="mb-8">
@@ -385,7 +405,7 @@ export default function DocumentsUpload() {
                   </div>
                   <h3 className="text-xl font-semibold mb-2">Analyzing Your Pricing Information</h3>
                   <p className="text-slate-600 mb-6">
-                    Our system is processing your pricing data. This information will be available for review shortly.
+                    We'll process the information and you'll be able to review it once you create your first project.
                   </p>
                   <Button
                     onClick={handleContinue}
@@ -398,29 +418,32 @@ export default function DocumentsUpload() {
               </CardContent>
             </Card>
           ) : (
-            <Card>
-              <CardHeader>
-                <CardTitle>Uploaded Documents</CardTitle>
-                <CardDescription>
-                  View and manage your uploaded project documents
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <DocumentList />
-              </CardContent>
+            <>
+              <Card className="mb-6">
+                <CardHeader>
+                  <CardTitle>Uploaded Documents</CardTitle>
+                  <CardDescription>
+                    View and manage your uploaded project documents
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <DocumentList />
+                </CardContent>
+              </Card>
+              
               {showSuccessMessage && (
-                <CardFooter className="border-t border-slate-200 pt-4 flex justify-center">
+                <div className="flex justify-center mb-8">
                   <Button 
                     onClick={handleProcessDocuments}
                     size="lg"
                     className="px-8"
                   >
-                    Create Your First Project
+                    Submit
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
-                </CardFooter>
+                </div>
               )}
-            </Card>
+            </>
           )}
         </>
       )}
@@ -580,7 +603,7 @@ export default function DocumentsUpload() {
                   </CardHeader>
                   <CardContent className="py-6">
                     <div className="max-w-md mx-auto text-center">
-                      <h3 className="text-xl font-semibold mb-4">Ready to Create Your Project</h3>
+                      <h3 className="text-xl font-semibold mb-4">Information Ready to Process</h3>
                       <p className="text-slate-600 mb-6">
                         We'll process the information and you'll be able to review it once you create your first project.
                       </p>
@@ -589,7 +612,7 @@ export default function DocumentsUpload() {
                         className="px-8"
                         size="lg"
                       >
-                        Create Your First Project
+                        Submit
                         <ArrowRight className="ml-2 h-4 w-4" />
                       </Button>
                     </div>
