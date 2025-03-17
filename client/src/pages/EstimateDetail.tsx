@@ -277,11 +277,12 @@ export default function EstimateDetail() {
     setEditedUnitPrice(null);
   };
   
-  // Handle item details panel
-  const showItemDetails = (item: any) => {
-    setSelectedItem(item);
-    setShowDetailsPanel(true);
-  };
+  // Open details panel when item is selected
+  useEffect(() => {
+    if (selectedItem) {
+      setShowDetailsPanel(true);
+    }
+  }, [selectedItem]);
   
   // Get confidence score color
   const getConfidenceScoreColor = (score: number) => {
@@ -658,177 +659,45 @@ export default function EstimateDetail() {
                           </TableRow>
                           
                           {/* Item rows */}
-                          {categoryItems.map(item => (
-                            <TableRow 
-                              key={item.id} 
-                              className={`border-b-0 ${issues.some(issue => issue.description.includes(item.materialName)) ? 'bg-amber-50/30' : ''}`}
-                            >
-                              <TableCell className="pl-8">
-                                <div className="font-medium flex items-center">
-                                  {item.materialName}
-                                  <Sheet>
-                                    <SheetTrigger asChild>
-                                      <Button variant="ghost" size="icon" className="h-6 w-6 ml-2" onClick={() => showItemDetails(item)}>
-                                        <InfoIcon className="h-4 w-4 text-slate-400" />
-                                      </Button>
-                                    </SheetTrigger>
-                                    <SheetContent className="w-[400px] sm:w-[540px]">
-                                      <SheetHeader>
-                                        <SheetTitle>Material Details: {item.materialName}</SheetTitle>
-                                        <SheetDescription>
-                                          Detailed information and calculations for this material
-                                        </SheetDescription>
-                                      </SheetHeader>
-                                      <div className="py-6">
-                                        <div className="space-y-6">
-                                          <div>
-                                            <h3 className="text-sm font-medium mb-2">Description</h3>
-                                            <p className="text-sm text-slate-600">{item.description || 'No description provided'}</p>
-                                          </div>
-                                          
-                                          <Separator />
-                                          
-                                          <div>
-                                            <h3 className="text-sm font-medium mb-3">Source Information</h3>
-                                            <div className="bg-slate-50 p-3 rounded-md mb-4">
-                                              <div className="flex items-center mb-2">
-                                                <FileSearch className="h-4 w-4 text-blue-600 mr-2" />
-                                                <span className="text-sm font-medium">RFP Source</span>
-                                              </div>
-                                              <p className="text-sm text-slate-600">Page 14, Section 3.2: Materials Requirements</p>
-                                              <div className="mt-2 text-sm italic border-l-2 border-blue-200 pl-3 text-slate-600">
-                                                "All drywall must be 5/8" fire-rated gypsum board with a minimum of {item.quantity} units required for the project."
-                                              </div>
-                                            </div>
-                                          </div>
-                                          
-                                          <Separator />
-                                          
-                                          <div>
-                                            <h3 className="text-sm font-medium mb-3">Calculations</h3>
-                                            <div className="space-y-3 text-sm">
-                                              <div className="flex justify-between bg-slate-50 p-2 rounded">
-                                                <span>Base Quantity (RFP):</span>
-                                                <span className="font-medium">{Math.round(item.quantity * 100 / (100 + (item.wasteFactor || 0))).toLocaleString()} {item.unit}</span>
-                                              </div>
-                                              <div className="flex justify-between bg-blue-50 p-2 rounded">
-                                                <span>Waste Factor:</span>
-                                                <span className="font-medium">{item.wasteFactor || 0}%</span>
-                                              </div>
-                                              <div className="flex justify-between bg-green-50 p-2 rounded">
-                                                <span>Final Quantity:</span>
-                                                <span className="font-medium">{item.quantity.toLocaleString()} {item.unit}</span>
-                                              </div>
-                                              <div className="flex justify-between bg-slate-50 p-2 rounded">
-                                                <span>Unit Price:</span>
-                                                <span className="font-medium">{formatCurrency(item.unitPrice)}</span>
-                                              </div>
-                                              <div className="flex justify-between bg-green-50 p-2 rounded">
-                                                <span>Total Cost:</span>
-                                                <span className="font-medium">{formatCurrency(item.totalPrice)}</span>
-                                              </div>
-                                            </div>
-                                          </div>
-                                          
-                                          <Separator />
-                                          
-                                          <div>
-                                            <h3 className="text-sm font-medium mb-3">Applied Standards</h3>
-                                            {item.wasteFactor ? (
-                                              <div className="flex items-start space-x-3 bg-blue-50 p-3 rounded">
-                                                <Sparkles className="h-5 w-5 text-blue-500 mt-0.5" />
-                                                <div>
-                                                  <p className="text-sm font-medium">Standard Applied: {item.category} Waste Factor</p>
-                                                  <p className="text-sm text-slate-600">Company standard {item.wasteFactor}% waste factor applied to this material</p>
-                                                </div>
-                                              </div>
-                                            ) : (
-                                              <p className="text-sm text-slate-500">No standards applied to this item</p>
-                                            )}
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </SheetContent>
-                                  </Sheet>
-                                </div>
-                                {item.description && (
-                                  <div className="text-xs text-slate-500">{item.description}</div>
-                                )}
-                              </TableCell>
-                              <TableCell>
-                                {editingItemId === item.id ? (
-                                  <div className="space-y-1">
-                                    <Input 
-                                      value={editedQuantity || ""}
-                                      onChange={(e) => setEditedQuantity(e.target.value)}
-                                      className="w-24 h-8 text-sm"
-                                    />
-                                    <div className="flex">
-                                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleSaveItem(item)}>
-                                        <Check className="h-3 w-3 text-green-600" />
-                                      </Button>
-                                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleCancelEdit}>
-                                        <X className="h-3 w-3 text-red-600" />
-                                      </Button>
-                                    </div>
-                                  </div>
-                                ) : (
-                                  <div className="group cursor-pointer" onClick={() => handleEditItem(item)}>
-                                    <div className="font-medium flex items-center">
-                                      {item.quantity.toLocaleString()}
-                                      <Edit className="h-3.5 w-3.5 ml-2 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                    </div>
-                                    {item.wasteFactor && (
-                                      <Popover>
-                                        <PopoverTrigger asChild>
-                                          <div className="text-xs text-slate-500 flex items-center cursor-help hover:text-blue-600">
-                                            <span>Includes {item.wasteFactor}% waste factor</span>
-                                            <InfoIcon className="ml-1 h-3 w-3" />
-                                          </div>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-80">
-                                          <div className="space-y-2">
-                                            <h4 className="font-medium text-sm">Standard Applied: Waste Factor</h4>
-                                            <p className="text-xs text-slate-600">
-                                              A {item.wasteFactor}% waste factor has been applied based on company standards for {item.category}.
-                                              This accounts for cutting waste, damaged materials, and safety margin.
-                                            </p>
-                                            <div className="text-xs pt-2 space-y-1">
-                                              <div className="flex justify-between">
-                                                <span className="text-slate-500">Base quantity (RFP):</span>
-                                                <span className="font-medium">{Math.round(item.quantity * 100 / (100 + item.wasteFactor)).toLocaleString()}</span>
-                                              </div>
-                                              <div className="flex justify-between">
-                                                <span className="text-slate-500">Waste factor ({item.wasteFactor}%):</span>
-                                                <span className="font-medium">{Math.round(item.quantity - (item.quantity * 100 / (100 + item.wasteFactor))).toLocaleString()}</span>
-                                              </div>
-                                              <div className="flex justify-between pt-1 border-t border-slate-100">
-                                                <span className="font-medium">Final quantity:</span>
-                                                <span className="font-medium">{item.quantity.toLocaleString()}</span>
-                                              </div>
-                                            </div>
-                                          </div>
-                                        </PopoverContent>
-                                      </Popover>
+                          {categoryItems.map(item => {
+                            const needsReview = issues.some(issue => issue.description.includes(item.materialName));
+                            
+                            return (
+                              <TableRow 
+                                key={item.id} 
+                                className={`border-b-0 cursor-pointer hover:bg-slate-50 ${needsReview ? 'bg-amber-50/30' : ''}`}
+                                onClick={() => setSelectedItem(item)}
+                              >
+                                <TableCell className="pl-8">
+                                  <div className="font-medium flex items-center">
+                                    {item.materialName}
+                                    {needsReview && (
+                                      <Badge variant="outline" className="bg-amber-50 text-amber-700 ml-2">
+                                        Needs Review
+                                      </Badge>
                                     )}
                                   </div>
-                                )}
-                              </TableCell>
-                              <TableCell>{item.unit}</TableCell>
-                              <TableCell>
-                                {editingItemId === item.id ? (
-                                  <div className="space-y-1">
-                                    <Input 
-                                      value={editedUnitPrice || ""}
-                                      onChange={(e) => setEditedUnitPrice(e.target.value)}
-                                      className="w-24 h-8 text-sm"
-                                    />
+                                  {item.description && (
+                                    <div className="text-xs text-slate-500">{item.description}</div>
+                                  )}
+                                </TableCell>
+                                <TableCell>
+                                  <div>
+                                    <div className="font-medium">
+                                      {item.quantity.toLocaleString()}
+                                    </div>
+                                    {item.wasteFactor && (
+                                      <div className="text-xs text-slate-500">
+                                        Includes {item.wasteFactor}% waste factor
+                                      </div>
+                                    )}
                                   </div>
-                                ) : (
-                                  <div className="group cursor-pointer" onClick={() => handleEditItem(item)}>
-                                    <div className="font-medium flex items-center">
+                                </TableCell>
+                                <TableCell>{item.unit}</TableCell>
+                                <TableCell>
+                                  <div>
+                                    <div className="font-medium">
                                       {formatCurrency(item.unitPrice)}
-                                      <Edit className="h-3.5 w-3.5 ml-2 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity" />
                                     </div>
                                     {item.priceSource && (
                                       <div className="text-xs text-slate-500">
@@ -836,40 +705,29 @@ export default function EstimateDetail() {
                                       </div>
                                     )}
                                   </div>
-                                )}
-                              </TableCell>
-                              <TableCell className="text-right">
-                                <div className="font-medium">{formatCurrency(item.totalPrice)}</div>
-                                <div className="text-xs text-slate-500">
-                                  {((item.totalPrice / estimate.totalCost) * 100).toFixed(1)}% of total
-                                </div>
-                              </TableCell>
-                              <TableCell className="text-right">
-                                {issues.some(issue => 
-                                  issue.description.includes(item.materialName)
-                                ) ? (
-                                  <div className="space-y-1">
-                                    <Badge variant="outline" className="bg-amber-50 text-amber-700">
-                                      Review
-                                    </Badge>
-                                    <Button 
-                                      size="sm" 
-                                      variant="ghost" 
-                                      className="text-xs h-6 px-2"
-                                      onClick={() => handleEditItem(item)}
-                                    >
-                                      <Edit className="h-3 w-3 mr-1" />
-                                      Edit
-                                    </Button>
+                                </TableCell>
+                                <TableCell className="text-right">
+                                  <div className="font-medium">{formatCurrency(item.totalPrice)}</div>
+                                  <div className="text-xs text-slate-500">
+                                    {((item.totalPrice / estimate.totalCost) * 100).toFixed(1)}% of total
                                   </div>
-                                ) : (
-                                  <Badge variant="outline" className="bg-green-50 text-green-700">
-                                    ✓
-                                  </Badge>
-                                )}
-                              </TableCell>
-                            </TableRow>
-                          ))}
+                                </TableCell>
+                                <TableCell className="text-right">
+                                  {needsReview ? (
+                                    <div className="space-y-1">
+                                      <Badge variant="outline" className="bg-amber-50 text-amber-700">
+                                        Review
+                                      </Badge>
+                                    </div>
+                                  ) : (
+                                    <Badge variant="outline" className="bg-green-50 text-green-700">
+                                      ✓ Approved
+                                    </Badge>
+                                  )}
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })}
                         </React.Fragment>
                       );
                     })}
@@ -1025,55 +883,224 @@ export default function EstimateDetail() {
         </DialogContent>
       </Dialog>
       
-      {/* Details Panel */}
-      <Sheet open={showDetailsPanel} onOpenChange={setShowDetailsPanel}>
-        <SheetContent className="w-full sm:max-w-md">
-          {selectedItem && (
-            <>
-              <SheetHeader>
-                <SheetTitle>Item Details: {selectedItem.materialName}</SheetTitle>
-                <SheetDescription>
-                  View detailed information about this material
-                </SheetDescription>
-              </SheetHeader>
-              
-              <div className="py-6 space-y-6">
-                <div>
-                  <h3 className="text-sm font-medium mb-2">Description</h3>
-                  <p className="text-sm">{selectedItem.description || 'No description provided'}</p>
+      {/* Material Details Panel */}
+      <div className={`fixed ${showDetailsPanel ? 'block' : 'hidden'} z-50 inset-0 bg-black/20`}>
+        <div className="grid grid-cols-1 lg:grid-cols-5 h-full">
+          <div className="col-span-3">
+            {/* Main content remains visible but darkened */}
+          </div>
+          
+          {/* Fly-out panel takes 2/5 of screen width on desktop */}
+          <div className="col-span-2 bg-white shadow-xl h-full overflow-y-auto">
+            {selectedItem && (
+              <div className="h-full flex flex-col">
+                <div className="flex items-center justify-between border-b p-4">
+                  <div>
+                    <h2 className="text-xl font-bold">Material Details: {selectedItem.materialName}</h2>
+                    <p className="text-sm text-slate-500">Detailed information and calculations for this material</p>
+                  </div>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={() => {
+                      setShowDetailsPanel(false);
+                      setSelectedItem(null);
+                    }}
+                  >
+                    <X className="h-5 w-5" />
+                  </Button>
                 </div>
                 
-                <Separator />
+                <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                  {/* Description */}
+                  <div>
+                    <h3 className="font-medium text-lg mb-3">Description</h3>
+                    <p className="text-slate-700">{selectedItem.description || 'Standard ' + selectedItem.materialName + ' for ' + estimate.projectType + ' project'}</p>
+                  </div>
+                  
+                  <Separator />
+                  
+                  {/* Source Information */}
+                  <div>
+                    <h3 className="font-medium text-lg mb-3">Source Information</h3>
+                    <div className="bg-blue-50 border border-blue-100 rounded-md p-4">
+                      <div className="flex items-center gap-2 mb-3">
+                        <FileSearch className="h-5 w-5 text-blue-600" />
+                        <span className="font-medium text-blue-700">RFP Source</span>
+                      </div>
+                      <p className="mb-2 text-slate-700 text-sm">Page 14, Section 3.2: Materials Requirements</p>
+                      <div className="bg-white border-l-4 border-blue-400 p-3 text-slate-600 text-sm italic">
+                        "All {selectedItem.materialName.toLowerCase()} must be sufficient grade for {estimate.projectType.toLowerCase()} use with a minimum of {Math.round(selectedItem.quantity * 100 / (100 + (selectedItem.wasteFactor || 0)))} {selectedItem.unit} required for the project."
+                      </div>
+                    </div>
+                    
+                    {selectedItem.priceSource && (
+                      <div className="bg-slate-50 border border-slate-200 rounded-md p-4 mt-3">
+                        <div className="flex items-center gap-2 mb-2">
+                          <FileText className="h-5 w-5 text-slate-600" />
+                          <span className="font-medium text-slate-700">Pricing Source</span>
+                        </div>
+                        <p className="text-slate-600 text-sm">
+                          Base unit price pulled from {selectedItem.priceSource}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <Separator />
+                  
+                  {/* Calculations */}
+                  <div>
+                    <h3 className="font-medium text-lg mb-3">Calculations</h3>
+                    <div className="space-y-3">
+                      <div className="bg-slate-50 rounded-md p-3">
+                        <div className="flex justify-between mb-1">
+                          <span className="text-slate-600 font-medium">Base Quantity (RFP):</span>
+                          <span className="font-semibold">{Math.round(selectedItem.quantity * 100 / (100 + (selectedItem.wasteFactor || 0))).toLocaleString()} {selectedItem.unit}</span>
+                        </div>
+                        <p className="text-xs text-slate-500">Source: Extracted from RFP documentation</p>
+                      </div>
+                      
+                      {selectedItem.wasteFactor && (
+                        <div className="bg-blue-50 rounded-md p-3">
+                          <div className="flex justify-between mb-1">
+                            <span className="text-blue-700 font-medium">Waste Factor Applied:</span>
+                            <span className="font-semibold text-blue-800">{selectedItem.wasteFactor}%</span>
+                          </div>
+                          <div className="flex justify-between mt-2">
+                            <span className="text-blue-700 text-sm">Additional material:</span>
+                            <span className="text-blue-800 font-medium">
+                              {Math.round(selectedItem.quantity - (selectedItem.quantity * 100 / (100 + selectedItem.wasteFactor))).toLocaleString()} {selectedItem.unit}
+                            </span>
+                          </div>
+                          <p className="text-xs text-blue-600 mt-1">Based on company standards for {selectedItem.category}</p>
+                        </div>
+                      )}
+                      
+                      <div className="bg-green-50 rounded-md p-3">
+                        <div className="flex justify-between mb-1">
+                          <span className="text-green-700 font-medium">Final Quantity:</span>
+                          <span className="font-semibold text-green-800">{selectedItem.quantity.toLocaleString()} {selectedItem.unit}</span>
+                        </div>
+                        <p className="text-xs text-green-600">Includes waste factor and adjustments from schematic calculations</p>
+                      </div>
+                      
+                      <div className="bg-slate-50 rounded-md p-3">
+                        <div className="flex justify-between mb-1">
+                          <span className="text-slate-600 font-medium">Unit Price:</span>
+                          <span className="font-semibold">{formatCurrency(selectedItem.unitPrice)}</span>
+                        </div>
+                        <p className="text-xs text-slate-500">Source: {selectedItem.priceSource || 'Standard market price'}</p>
+                      </div>
+                      
+                      <div className="bg-green-50 rounded-md p-3">
+                        <div className="flex justify-between mb-1">
+                          <span className="text-green-700 font-medium">Total Cost:</span>
+                          <span className="font-bold text-green-800">{formatCurrency(selectedItem.totalPrice)}</span>
+                        </div>
+                        <p className="text-xs text-green-600">
+                          {((selectedItem.totalPrice / estimate.totalCost) * 100).toFixed(1)}% of total estimate value
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <Separator />
+                  
+                  {/* Applied Standards */}
+                  <div>
+                    <h3 className="font-medium text-lg mb-3">Applied Standards</h3>
+                    {selectedItem.wasteFactor ? (
+                      <div className="flex items-start gap-3 bg-blue-50 border border-blue-100 rounded-md p-4">
+                        <Sparkles className="h-6 w-6 text-blue-500 mt-1" />
+                        <div>
+                          <h4 className="font-medium text-blue-700">Company Standard: {selectedItem.category} Waste Factor</h4>
+                          <p className="text-sm text-blue-600 mt-1">
+                            A {selectedItem.wasteFactor}% waste factor has been automatically applied based on 
+                            company standards for {selectedItem.category.toLowerCase()}. This accounts for cutting waste, 
+                            damaged materials, and safety margin.
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-slate-500 text-sm border border-slate-200 rounded-md p-4 bg-slate-50">
+                        No company standards have been applied to this material.
+                      </div>
+                    )}
+                  </div>
+                  
+                  <Separator />
+                  
+                  {/* Comments */}
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="font-medium text-lg">Comments</h3>
+                      <Button variant="outline" size="sm">
+                        <Plus className="h-4 w-4 mr-1" />
+                        Add Comment
+                      </Button>
+                    </div>
+                    
+                    <div className="text-slate-500 text-sm border border-slate-200 rounded-md p-4 bg-slate-50">
+                      No comments have been added to this item yet.
+                    </div>
+                  </div>
+                  
+                  {/* Validation Issues */}
+                  {issues.some(issue => issue.description.includes(selectedItem.materialName)) && (
+                    <>
+                      <Separator />
+                      
+                      <div>
+                        <h3 className="font-medium text-lg mb-3 text-amber-700">Validation Issues</h3>
+                        <div className="bg-amber-50 border border-amber-200 rounded-md p-4">
+                          <div className="flex items-start gap-2 mb-2">
+                            <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5" />
+                            <div>
+                              <h4 className="font-medium text-amber-700">Pricing Anomaly Detected</h4>
+                              <p className="text-sm text-amber-600 mt-1">
+                                The unit price for {selectedItem.materialName} is 15% higher than the standard market rate for similar projects.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
                 
-                <div>
-                  <h3 className="text-sm font-medium mb-2">Pricing Information</h3>
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-sm text-slate-500">Unit Price:</span>
-                      <span className="text-sm font-medium">{formatCurrency(selectedItem.unitPrice)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-slate-500">Quantity:</span>
-                      <span className="text-sm font-medium">{selectedItem.quantity.toLocaleString()} {selectedItem.unit}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-slate-500">Total:</span>
-                      <span className="text-sm font-medium">{formatCurrency(selectedItem.totalPrice)}</span>
-                    </div>
+                <div className="border-t p-4 bg-slate-50 flex items-center justify-between">
+                  <div>
+                    {issues.some(issue => issue.description.includes(selectedItem.materialName)) ? (
+                      <Badge variant="outline" className="bg-amber-50 text-amber-700">
+                        <AlertCircle className="h-3 w-3 mr-1" />
+                        Needs Review
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="bg-green-50 text-green-700">
+                        <Check className="h-3 w-3 mr-1" />
+                        Approved
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="space-x-2">
+                    <Button variant="outline" onClick={() => {
+                      setShowDetailsPanel(false);
+                      setSelectedItem(null);
+                    }}>
+                      Cancel
+                    </Button>
+                    <Button onClick={() => handleEditItem(selectedItem)}>
+                      <Edit className="mr-2 h-4 w-4" />
+                      Edit Item
+                    </Button>
                   </div>
                 </div>
               </div>
-              
-              <div className="absolute bottom-6 right-6">
-                <Button variant="default" onClick={() => handleEditItem(selectedItem)}>
-                  <Edit className="mr-2 h-4 w-4" />
-                  Edit Item
-                </Button>
-              </div>
-            </>
-          )}
-        </SheetContent>
-      </Sheet>
+            )}
+          </div>
+        </div>
+      </div>
       
       {/* Onboarding overlay */}
       {showOnboarding && (
@@ -1191,26 +1218,30 @@ export default function EstimateDetail() {
                 <div>
                   <h3 className="text-xl font-semibold mb-3 flex items-center">
                     <FileQuestion className="mr-2 h-5 w-5 text-blue-500" />
-                    Validation Issues
+                    Real-time Validation
                   </h3>
-                  <p className="mb-4">The system automatically checks your estimate against industry standards and your company standards.</p>
+                  <p className="mb-4">The system automatically validates all line items without requiring a manual validation button.</p>
                   
                   <div className="border rounded-md p-4 mb-4 bg-amber-50 border-amber-200">
-                    <h4 className="font-semibold text-amber-800 mb-1">Potential Issues</h4>
+                    <h4 className="font-semibold text-amber-800 mb-1">Line Item Validation</h4>
                     <ul className="text-sm text-amber-700 space-y-2">
                       <li className="flex items-start">
                         <AlertCircle className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
-                        <span>Drywall pricing appears 15% higher than market average</span>
+                        <span>Items with validation issues are highlighted and flagged for review</span>
                       </li>
                       <li className="flex items-start">
-                        <AlertCircle className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
-                        <span>Waste factor for carpeting exceeds company standard</span>
+                        <ArrowRight className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
+                        <span>Click on a flagged item to see detailed validation information</span>
+                      </li>
+                      <li className="flex items-start">
+                        <CircleCheck className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
+                        <span>Resolve issues in the flyout panel to increase confidence score</span>
                       </li>
                     </ul>
                   </div>
                   
                   <p className="text-sm text-slate-600">
-                    All validation issues are listed in the "Validation & Standards" tab for easy review and resolution.
+                    No need to manually validate - the confidence score updates automatically as you review and fix issues.
                   </p>
                 </div>
               )}
@@ -1219,31 +1250,41 @@ export default function EstimateDetail() {
                 <div>
                   <h3 className="text-xl font-semibold mb-3 flex items-center">
                     <ClipboardCheck className="mr-2 h-5 w-5 text-blue-500" />
-                    Applied Standards
+                    Final Review & Export
                   </h3>
-                  <p className="mb-4">Your company's standards have been automatically applied to this estimate.</p>
+                  <p className="mb-4">Once your confidence score reaches 95% or higher, you can review and export your estimate.</p>
                   
-                  <div className="border rounded-md p-4 mb-4 bg-blue-50 border-blue-200">
-                    <h4 className="font-semibold text-blue-800 mb-1">Standards Applied</h4>
-                    <ul className="text-sm text-blue-700 space-y-2">
+                  <div className="border rounded-md p-4 mb-4 bg-green-50 border-green-200">
+                    <h4 className="font-semibold text-green-800 mb-1">Final Review Process</h4>
+                    <ul className="text-sm text-green-700 space-y-2">
                       <li className="flex items-start">
                         <CheckCircle2 className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
-                        <span>Applied waste factor of 15% for drywall materials</span>
+                        <span>Review comprehensive estimate summary with category breakdowns</span>
                       </li>
                       <li className="flex items-start">
                         <CheckCircle2 className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
-                        <span>Used standard ceiling height of 9 feet for volume calculations</span>
+                        <span>See all applied company standards in one consolidated view</span>
                       </li>
                       <li className="flex items-start">
                         <CheckCircle2 className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
-                        <span>Applied preferred flooring installation method (floating)</span>
+                        <span>Export final estimate as a professional PDF document</span>
+                      </li>
+                      <li className="flex items-start">
+                        <ArrowRight className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
+                        <span>Track and manage all estimates from the dashboard</span>
                       </li>
                     </ul>
                   </div>
                   
-                  <p className="text-sm text-slate-600">
-                    You can see all the applied standards in the "Validation & Standards" tab.
-                  </p>
+                  <div className="bg-blue-50 border border-blue-100 rounded-md p-4">
+                    <div className="flex items-start">
+                      <LightbulbIcon className="h-5 w-5 text-blue-500 mt-0.5 mr-3" />
+                      <div className="text-sm text-blue-700">
+                        <p className="font-medium mb-1">Pro Tip</p>
+                        <p>The "Review Final Estimate" button becomes available once your confidence score reaches 95% or higher. Focus on resolving flagged items to increase your score.</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
               
